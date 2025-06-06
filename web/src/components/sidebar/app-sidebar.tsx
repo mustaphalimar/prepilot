@@ -129,7 +129,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <a href="#">
                 <IconBulb className="!size-5" />
-                <span className="text-base font-semibold">ExamPrep</span>
+                <span className="text-base font-semibold">PrePilot</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

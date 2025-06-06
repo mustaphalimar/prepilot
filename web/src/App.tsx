@@ -1,9 +1,19 @@
-function App() {
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/clerk-react";
+
+export default function App() {
   return (
-    <div className="p-4 rounded border border-black w-fit shadow-lg">
-      <h1 className="text-4xl font-bold">Hello there</h1>
-    </div>
+    <header>
+      <SignedOut>
+        <SignInButton />
+      </SignedOut>
+      <SignedIn>
+        <UserButton />
+      </SignedIn>
+    </header>
   );
 }
-
-export default App;
