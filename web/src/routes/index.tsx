@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   SignedIn,
   SignedOut,
@@ -20,14 +20,14 @@ function Index() {
           Welcome to Prepilot
         </h1>
         <p className="text-lg text-gray-600 mb-8">
-          Your gateway to productivity
+          Your AI-powered exam preparation companion
         </p>
       </div>
 
       <SignedOut>
         <div className="flex flex-col items-center space-y-4">
           <p className="text-gray-600">
-            Please sign in to access your dashboard
+            Please sign in to start your exam preparation journey
           </p>
           <SignInButton mode="modal">
             <Button size="lg">Sign In</Button>
@@ -41,14 +41,11 @@ function Index() {
       <SignedIn>
         <div className="flex flex-col items-center space-y-4">
           <p className="text-gray-600">
-            You're signed in! Ready to get started?
+            You're signed in! Ready to ace your exams?
           </p>
           <div className="flex space-x-4 items-center">
-            <Link
-              to="/dashboard"
-              className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-            >
-              Go to Dashboard
+            <Link to="/dashboard" className={buttonVariants()}>
+              Start Studying
             </Link>
             <UserButton afterSignOutUrl="/" />
           </div>
