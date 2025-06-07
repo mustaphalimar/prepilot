@@ -71,7 +71,7 @@ export function DemoPage() {
                   Study Smart, Not Hard
                 </h3>
                 <p className="text-primary-foreground/90 text-sm">
-                  We're crafting the ultimate exam prep experience. Every
+                  We&apos;re crafting the ultimate exam prep experience. Every
                   feature is being designed with student success in mind, backed
                   by proven learning methodologies.
                 </p>
@@ -152,9 +152,9 @@ export function DemoPage() {
                   <div className="flex items-center">
                     <span className="text-green-500 mr-3">✓</span>
                     <div>
-                      <p className="font-semibold">You're on the list!</p>
+                      <p className="font-semibold">You&apos;re on the list!</p>
                       <p className="text-sm">
-                        We'll notify you when Prepilot launches.
+                        We&apos;ll notify you when Prepilot launches.
                       </p>
                     </div>
                   </div>
