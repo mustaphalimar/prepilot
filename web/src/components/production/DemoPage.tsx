@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -70,7 +71,7 @@ export function DemoPage() {
                   Study Smart, Not Hard
                 </h3>
                 <p className="text-primary-foreground/90 text-sm">
-                  We're crafting the ultimate exam prep experience. Every
+                  We&apos;re crafting the ultimate exam prep experience. Every
                   feature is being designed with student success in mind, backed
                   by proven learning methodologies.
                 </p>
@@ -129,7 +130,7 @@ export function DemoPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your student email address"
+                    placeholder="Enter your email address"
                     className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     required
                   />
@@ -151,9 +152,9 @@ export function DemoPage() {
                   <div className="flex items-center">
                     <span className="text-green-500 mr-3">✓</span>
                     <div>
-                      <p className="font-semibold">You're on the list!</p>
+                      <p className="font-semibold">You&apos;re on the list!</p>
                       <p className="text-sm">
-                        We'll notify you when Prepilot launches.
+                        We&apos;ll notify you when Prepilot launches.
                       </p>
                     </div>
                   </div>
@@ -173,20 +174,20 @@ export function DemoPage() {
                 hello@prepilot.com
               </a>
             </p>
-            <div className="flex justify-center space-x-6">
-              <a href="#" className="hover:text-gray-700">
+            <div className="flex justify-center text-sm space-x-6">
+              <a href="#" className="hover:text-gray-700 hover:underline">
                 Privacy Policy
               </a>
-              <a href="#" className="hover:text-gray-700">
+              <a href="#" className="hover:text-gray-700 hover:underline">
                 Terms of Service
               </a>
-              <a href="#" className="hover:text-gray-700">
+              <a href="#" className="hover:text-gray-700 hover:underline">
                 Contact
               </a>
             </div>
             <p className="text-xs mt-4">
-              © 2024 Prepilot. Empowering students to achieve their academic
-              goals.
+              © {new Date().getFullYear()} Prepilot. Empowering students to
+              achieve their academic goals.
             </p>
           </div>
         </div>

@@ -91,7 +91,7 @@ function AuthWrapper() {
 
 function RootComponent() {
   // If in production, show demo page instead of the actual app for safety
-  if (!isSafeToShowApp()) {
+  if (isSafeToShowApp()) {
     return <DemoPage />;
   }
 
