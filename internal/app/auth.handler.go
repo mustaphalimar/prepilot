@@ -2,12 +2,7 @@
 package app
 
 import (
-	"context"
-	"errors"
 	"net/http"
-
-	"github.com/mustaphalimar/prepilot/internal/store"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type RegisterRequest struct {
@@ -28,29 +23,7 @@ func (app *Application) RegisterHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Hash password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
-	if err != nil {
-		app.internalServerError(w, r, err)
-		return
-	}
-
-	user, err := app.Queries.CreateUser(context.Background(), store.CreateUserParams{
-		Name:     req.Name,
-		Email:    req.Email,
-		Password: string(hashedPassword),
-	})
-
-	if err != nil {
-		switch {
-		case errors.Is(err, store.ErrEmailAlreadyInUse):
-			app.conflictError(w, r, err)
-			return
-		default:
-			app.internalServerError(w, r, err)
-			return
-		}
-	}
-
-	app.jsonResponse(w, http.StatusCreated, user)
+	// This handler is now deprecated as user creation is handled by Clerk webhooks
+	// Return an error indicating that registration should be done through Clerk
+	app.writeJSONError(w, http.StatusBadRequest, "User registration is handled through Clerk authentication")
 }
