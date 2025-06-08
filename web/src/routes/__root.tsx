@@ -12,7 +12,8 @@ import { SiteHeader } from "@/components/site-header";
 
 import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 import { useEffect } from "react";
-import { env, validateEnvironment } from "@/lib/env";
+import { env, isSafeToShowApp, validateEnvironment } from "@/lib/env";
+import { DemoPage } from "@/components/production/DemoPage";
 
 // Import test utility in development
 if (env.isDevelopment) {
@@ -91,9 +92,9 @@ function AuthWrapper() {
 
 function RootComponent() {
   // If in production, show demo page instead of the actual app for safety
-  // if (!isSafeToShowApp()) {
-  //   return <DemoPage />;
-  // }
+  if (!isSafeToShowApp()) {
+    return <DemoPage />;
+  }
 
   return (
     <>
