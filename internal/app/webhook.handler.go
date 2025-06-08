@@ -168,12 +168,27 @@ func (app *Application) verifyClerkWebhook(r *http.Request, body []byte) bool {
 
 	fmt.Printf("🔑 Signature header: %s\n", signature)
 
-	// Parse the signature header
+	// Parse the signature header - Clerk format: "v1,signature_value"
 	signatures := make(map[string]string)
-	for _, sig := range strings.Split(signature, ",") {
-		parts := strings.SplitN(sig, "=", 2)
+	
+	// Clerk sends signature in format: "v1,actual_signature_value"
+	if strings.Contains(signature, ",") {
+		parts := strings.SplitN(signature, ",", 2)
 		if len(parts) == 2 {
-			signatures[parts[0]] = parts[1]
+			version := strings.TrimSpace(parts[0])
+			signatureValue := strings.TrimSpace(parts[1])
+			signatures[version] = signatureValue
+			fmt.Printf("🔧 Parsed signature - Version: %s, Value: %s\n", version, signatureValue[:10]+"...")
+		}
+	} else {
+		// Fallback for other formats
+		for _, sig := range strings.Split(signature, " ") {
+			if strings.Contains(sig, "=") {
+				parts := strings.SplitN(sig, "=", 2)
+				if len(parts) == 2 {
+					signatures[parts[0]] = parts[1]
+				}
+			}
 		}
 	}
 
