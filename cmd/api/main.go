@@ -41,10 +41,19 @@ func main() {
 	defer sqlDB.Close()
 	log.Println("Database connection pool established.")
 
+	// Run database migrations
+	log.Println("Running database migrations...")
+	migrationRunner := db.NewMigrationRunner(sqlDB)
+	if err := migrationRunner.RunMigrations(); err != nil {
+		log.Fatalf("Failed to run database migrations: %v", err)
+	}
+	log.Println("Database migrations completed successfully.")
+
 	// Application configuration
 	appConfig := app.Config{
-		Addr: env.GetString("ADDR", ":8080"),
-		Env:  env.GetString("ENV", "development"),
+		Addr:               env.GetString("ADDR", ":8080"),
+		Env:                env.GetString("ENV", "development"),
+		ClerkWebhookSecret: env.GetString("CLERK_WEBHOOK_SECRET", ""),
 	}
 
 	// Create application instance

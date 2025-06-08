@@ -8,8 +8,9 @@ import (
 
 // Config holds application configuration
 type Config struct {
-	Addr string
-	Env  string
+	Addr              string
+	Env               string
+	ClerkWebhookSecret string
 }
 
 // Application holds dependencies for the application

@@ -23,11 +23,11 @@ WORKDIR /app
 RUN apk --no-cache add ca-certificates
 
 COPY --from=builder /app/server .
-COPY --from=builder /app/internal/db/migrations ./internal/db/migrations
 
 # Set environment variables as needed
 ENV PORT=8080
 
 EXPOSE 8080
 
+# Start server (migrations will run automatically in Go code)
 CMD ["./server"]
