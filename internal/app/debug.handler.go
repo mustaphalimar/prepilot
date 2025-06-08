@@ -13,8 +13,6 @@ import (
 func (app *Application) DebugListUsersHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("🔍 Debug: Listing all users in database\n")
 
-	queries := store.New(app.DB)
-	
 	// Get all users from database
 	query := `
 		SELECT id, name, email, created_at, updated_at, clerk_id, 
@@ -139,13 +137,6 @@ func (app *Application) DebugWebhookTestHandler(w http.ResponseWriter, r *http.R
 		"updated_at": 1609459200000,
 		"last_sign_in_at": 1609459200000
 	}`
-
-	// Create a test webhook event
-	testEvent := map[string]interface{}{
-		"type":   "user.created",
-		"object": "event",
-		"data":   testUserData,
-	}
 
 	// Process the test event
 	app.handleUserCreated(w, r, []byte(testUserData))
