@@ -105,11 +105,6 @@ function RootComponent() {
         {env.features.enableRouterDevtools && (
           <TanStackRouterDevtools position="bottom-right" />
         )}
-        {env.features.showDevIndicator && (
-          <div className="fixed bottom-4 left-4 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-mono z-50">
-            DEV MODE
-          </div>
-        )}
       </ClerkProvider>
     </>
   );

@@ -3,16 +3,23 @@ import {
   SignedIn,
   SignedOut,
   SignInButton,
+  useAuth,
   UserButton,
 } from "@clerk/clerk-react";
 
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
 function Index() {
+  const { isSignedIn } = useAuth();
+
+  const navigate = useNavigate();
+  if (isSignedIn) {
+    navigate({ to: "/dashboard" });
+  }
   return (
     <div className="flex flex-col items-center justify-center min-h-screen space-y-6">
       <div className="text-center">
