@@ -13,6 +13,13 @@ func (app *Application) RegisterRoutes(r chi.Router) {
 		// Webhook routes (before auth to avoid middleware)
 		r.Post("/webhooks/clerk", app.ClerkWebhookHandler)
 
+		// Debug routes for checking user sync
+		r.Get("/debug/users", app.DebugListUsersHandler)
+		r.Get("/debug/user/{clerkId}", app.DebugGetUserHandler)
+		r.Get("/debug/db", app.DebugDatabaseConnectionHandler)
+		r.Get("/debug/webhook-config", app.DebugClerkWebhookConfigHandler)
+		r.Post("/debug/webhook-test", app.DebugWebhookTestHandler)
+
 		// Auth routes
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/register", app.RegisterHandler)
