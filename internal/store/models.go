@@ -5,16 +5,23 @@
 package store
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
 )
 
 type User struct {
-	ID        uuid.UUID `json:"id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	Password  string    `json:"password"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID            uuid.UUID      `json:"id"`
+	Name          sql.NullString `json:"name"`
+	Email         string         `json:"email"`
+	CreatedAt     time.Time      `json:"created_at"`
+	UpdatedAt     time.Time      `json:"updated_at"`
+	ClerkID       string         `json:"clerk_id"`
+	FirstName     sql.NullString `json:"first_name"`
+	LastName      sql.NullString `json:"last_name"`
+	ImageUrl      sql.NullString `json:"image_url"`
+	EmailVerified sql.NullBool   `json:"email_verified"`
+	LastSignInAt  sql.NullTime   `json:"last_sign_in_at"`
+	Banned        sql.NullBool   `json:"banned"`
 }
