@@ -4,7 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"database/sql"
-	"encoding/hex"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -168,12 +168,27 @@ func (app *Application) verifyClerkWebhook(r *http.Request, body []byte) bool {
 
 	fmt.Printf("🔑 Signature header: %s\n", signature)
 
-	// Parse the signature header
+	// Parse the signature header - Clerk format: "v1,signature_value"
 	signatures := make(map[string]string)
-	for _, sig := range strings.Split(signature, ",") {
-		parts := strings.SplitN(sig, "=", 2)
+	
+	// Clerk sends signature in format: "v1,actual_signature_value"
+	if strings.Contains(signature, ",") {
+		parts := strings.SplitN(signature, ",", 2)
 		if len(parts) == 2 {
-			signatures[parts[0]] = parts[1]
+			version := strings.TrimSpace(parts[0])
+			signatureValue := strings.TrimSpace(parts[1])
+			signatures[version] = signatureValue
+			fmt.Printf("🔧 Parsed signature - Version: %s, Value: %s\n", version, signatureValue[:10]+"...")
+		}
+	} else {
+		// Fallback for other formats
+		for _, sig := range strings.Split(signature, " ") {
+			if strings.Contains(sig, "=") {
+				parts := strings.SplitN(sig, "=", 2)
+				if len(parts) == 2 {
+					signatures[parts[0]] = parts[1]
+				}
+			}
 		}
 	}
 
@@ -197,13 +212,24 @@ func (app *Application) verifyClerkWebhook(r *http.Request, body []byte) bool {
 		return false
 	}
 
-	// Create the expected signature
+	// Create the expected signature using Clerk's algorithm
 	id := r.Header.Get("svix-id")
 	payload := fmt.Sprintf("%s.%s.%s", id, timestamp, string(body))
 	
-	mac := hmac.New(sha256.New, []byte(webhookSecret))
+	// Decode the webhook secret from base64 (Clerk secrets are base64 encoded)
+	secretBytes := []byte(webhookSecret)
+	if strings.HasPrefix(webhookSecret, "whsec_") {
+		// Remove the whsec_ prefix and decode from base64
+		secretWithoutPrefix := strings.TrimPrefix(webhookSecret, "whsec_")
+		decoded, err := base64.StdEncoding.DecodeString(secretWithoutPrefix)
+		if err == nil {
+			secretBytes = decoded
+		}
+	}
+	
+	mac := hmac.New(sha256.New, secretBytes)
 	mac.Write([]byte(payload))
-	expectedSignature := hex.EncodeToString(mac.Sum(nil))
+	expectedSignature := base64.StdEncoding.EncodeToString(mac.Sum(nil))
 
 	// Compare with provided signature
 	providedSignature, exists := signatures["v1"]
@@ -213,6 +239,8 @@ func (app *Application) verifyClerkWebhook(r *http.Request, body []byte) bool {
 	}
 
 	isValid := hmac.Equal([]byte(expectedSignature), []byte(providedSignature))
+	fmt.Printf("🔍 Expected signature: %s\n", expectedSignature[:10]+"...")
+	fmt.Printf("🔍 Provided signature: %s\n", providedSignature[:10]+"...")
 	fmt.Printf("🔍 Signature verification result: %v\n", isValid)
 	
 	return isValid
