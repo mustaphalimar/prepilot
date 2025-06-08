@@ -8,11 +8,11 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
-import { DemoPage } from "@/components/production/DemoPage";
+// import { DemoPage } from "@/components/production/DemoPage";
 
 import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 import { useEffect } from "react";
-import { env, validateEnvironment, isSafeToShowApp } from "@/lib/env";
+import { env, validateEnvironment } from "@/lib/env";
 
 // Import test utility in development
 if (env.isDevelopment) {
