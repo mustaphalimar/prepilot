@@ -10,6 +10,9 @@ func (app *Application) RegisterRoutes(r chi.Router) {
 	r.Route("/v1", func(r chi.Router) {
 		r.Get("/health", app.healthCheckHandler)
 
+		// Webhook routes (before auth to avoid middleware)
+		r.Post("/webhooks/clerk", app.ClerkWebhookHandler)
+
 		// Auth routes
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/register", app.RegisterHandler)

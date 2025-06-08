@@ -12,7 +12,7 @@
     --card-foreground: oklch(0.1908 0.002 106.5859);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.2671 0.0196 98.939);
-    --primary: oklch(0.6349 0.1166 170.9522);
+    --primary: oklch(0.6474 0.114789 205.9716);
     --primary-foreground: oklch(1 0 0);
     --secondary: oklch(0.9245 0.0138 92.9892);
     --secondary-foreground: oklch(0.4334 0.0177 98.6048);
@@ -38,7 +38,7 @@
     --sidebar-accent-foreground: oklch(0.325 0 0);
     --sidebar-border: oklch(0.9401 0 0);
     --sidebar-ring: oklch(0.7731 0 0);
-    --font-sans: "Bricolage Grotesque", sans-serif;
+    --font-sans: "Poppins", sans-serif;
     --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
     --font-mono:
         ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
@@ -172,6 +172,19 @@
     --tracking-wide: calc(var(--tracking-normal) + 0.025em);
     --tracking-wider: calc(var(--tracking-normal) + 0.05em);
     --tracking-widest: calc(var(--tracking-normal) + 0.1em);
+}
+
+@keyframes spin-fast {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin-fast {
+    animation: spin-fast 0.5s linear infinite;
 }
 
 body {

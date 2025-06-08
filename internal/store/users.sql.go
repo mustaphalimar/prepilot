@@ -7,58 +7,77 @@ package store
 
 import (
 	"context"
-	"errors"
+	"database/sql"
 
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 )
 
+const banUser = `-- name: BanUser :exec
+UPDATE users SET banned = true, updated_at = NOW() WHERE clerk_id = $1
+`
 
-var (
-	ErrNotFound        = errors.New("Record not found.")
-	ErrEmailAlreadyInUse = errors.New("Email already in use.")
-	ErrConflict          = errors.New("Resource already exists.")
-)
+func (q *Queries) BanUser(ctx context.Context, clerkID string) error {
+	_, err := q.db.ExecContext(ctx, banUser, clerkID)
+	return err
+}
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (name, email, password)
-VALUES ($1, $2, $3)
-RETURNING id, name, email, created_at, updated_at
+INSERT INTO users (clerk_id, email, first_name, last_name, name, image_url, email_verified, last_sign_in_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING id, name, email, created_at, updated_at, clerk_id, first_name, last_name, image_url, email_verified, last_sign_in_at, banned
 `
 
 type CreateUserParams struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	ClerkID       string         `json:"clerk_id"`
+	Email         string         `json:"email"`
+	FirstName     sql.NullString `json:"first_name"`
+	LastName      sql.NullString `json:"last_name"`
+	Name          sql.NullString `json:"name"`
+	ImageUrl      sql.NullString `json:"image_url"`
+	EmailVerified sql.NullBool   `json:"email_verified"`
+	LastSignInAt  sql.NullTime   `json:"last_sign_in_at"`
 }
 
-
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.Name, arg.Email, arg.Password)
+	row := q.db.QueryRowContext(ctx, createUser,
+		arg.ClerkID,
+		arg.Email,
+		arg.FirstName,
+		arg.LastName,
+		arg.Name,
+		arg.ImageUrl,
+		arg.EmailVerified,
+		arg.LastSignInAt,
+	)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
 		&i.Email,
-		&i.Password,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ClerkID,
+		&i.FirstName,
+		&i.LastName,
+		&i.ImageUrl,
+		&i.EmailVerified,
+		&i.LastSignInAt,
+		&i.Banned,
 	)
-	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok {
-			if pqErr.Code == "23505" {
-				return User{},ErrEmailAlreadyInUse
-			}
-		} else {
-			return User{},err
-		}
-	}
-
 	return i, err
 }
 
+const deleteUserByClerkID = `-- name: DeleteUserByClerkID :exec
+DELETE FROM users WHERE clerk_id = $1
+`
+
+func (q *Queries) DeleteUserByClerkID(ctx context.Context, clerkID string) error {
+	_, err := q.db.ExecContext(ctx, deleteUserByClerkID, clerkID)
+	return err
+}
+
 const getUser = `-- name: GetUser :one
-SELECT id, name, email, password, created_at, updated_at FROM users WHERE id = $1 LIMIT 1
+SELECT id, name, email, created_at, updated_at, clerk_id, first_name, last_name, image_url, email_verified, last_sign_in_at, banned FROM users WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
@@ -68,15 +87,45 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.ID,
 		&i.Name,
 		&i.Email,
-		&i.Password,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ClerkID,
+		&i.FirstName,
+		&i.LastName,
+		&i.ImageUrl,
+		&i.EmailVerified,
+		&i.LastSignInAt,
+		&i.Banned,
+	)
+	return i, err
+}
+
+const getUserByClerkID = `-- name: GetUserByClerkID :one
+SELECT id, name, email, created_at, updated_at, clerk_id, first_name, last_name, image_url, email_verified, last_sign_in_at, banned FROM users WHERE clerk_id = $1 LIMIT 1
+`
+
+func (q *Queries) GetUserByClerkID(ctx context.Context, clerkID string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByClerkID, clerkID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.ClerkID,
+		&i.FirstName,
+		&i.LastName,
+		&i.ImageUrl,
+		&i.EmailVerified,
+		&i.LastSignInAt,
+		&i.Banned,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, name, email, password, created_at, updated_at FROM users WHERE email = $1 LIMIT 1
+SELECT id, name, email, created_at, updated_at, clerk_id, first_name, last_name, image_url, email_verified, last_sign_in_at, banned FROM users WHERE email = $1 LIMIT 1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
@@ -86,9 +135,135 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.ID,
 		&i.Name,
 		&i.Email,
-		&i.Password,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ClerkID,
+		&i.FirstName,
+		&i.LastName,
+		&i.ImageUrl,
+		&i.EmailVerified,
+		&i.LastSignInAt,
+		&i.Banned,
+	)
+	return i, err
+}
+
+const unbanUser = `-- name: UnbanUser :exec
+UPDATE users SET banned = false, updated_at = NOW() WHERE clerk_id = $1
+`
+
+func (q *Queries) UnbanUser(ctx context.Context, clerkID string) error {
+	_, err := q.db.ExecContext(ctx, unbanUser, clerkID)
+	return err
+}
+
+const updateUser = `-- name: UpdateUser :one
+UPDATE users 
+SET 
+    email = COALESCE($2, email),
+    first_name = COALESCE($3, first_name),
+    last_name = COALESCE($4, last_name),
+    name = COALESCE($5, name),
+    image_url = COALESCE($6, image_url),
+    email_verified = COALESCE($7, email_verified),
+    last_sign_in_at = COALESCE($8, last_sign_in_at),
+    updated_at = NOW()
+WHERE clerk_id = $1
+RETURNING id, name, email, created_at, updated_at, clerk_id, first_name, last_name, image_url, email_verified, last_sign_in_at, banned
+`
+
+type UpdateUserParams struct {
+	ClerkID       string         `json:"clerk_id"`
+	Email         string         `json:"email"`
+	FirstName     sql.NullString `json:"first_name"`
+	LastName      sql.NullString `json:"last_name"`
+	Name          sql.NullString `json:"name"`
+	ImageUrl      sql.NullString `json:"image_url"`
+	EmailVerified sql.NullBool   `json:"email_verified"`
+	LastSignInAt  sql.NullTime   `json:"last_sign_in_at"`
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, updateUser,
+		arg.ClerkID,
+		arg.Email,
+		arg.FirstName,
+		arg.LastName,
+		arg.Name,
+		arg.ImageUrl,
+		arg.EmailVerified,
+		arg.LastSignInAt,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.ClerkID,
+		&i.FirstName,
+		&i.LastName,
+		&i.ImageUrl,
+		&i.EmailVerified,
+		&i.LastSignInAt,
+		&i.Banned,
+	)
+	return i, err
+}
+
+const upsertUserByClerkID = `-- name: UpsertUserByClerkID :one
+INSERT INTO users (clerk_id, email, first_name, last_name, name, image_url, email_verified, last_sign_in_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+ON CONFLICT (clerk_id) 
+DO UPDATE SET
+    email = EXCLUDED.email,
+    first_name = EXCLUDED.first_name,
+    last_name = EXCLUDED.last_name,
+    name = EXCLUDED.name,
+    image_url = EXCLUDED.image_url,
+    email_verified = EXCLUDED.email_verified,
+    last_sign_in_at = EXCLUDED.last_sign_in_at,
+    updated_at = NOW()
+RETURNING id, name, email, created_at, updated_at, clerk_id, first_name, last_name, image_url, email_verified, last_sign_in_at, banned
+`
+
+type UpsertUserByClerkIDParams struct {
+	ClerkID       string         `json:"clerk_id"`
+	Email         string         `json:"email"`
+	FirstName     sql.NullString `json:"first_name"`
+	LastName      sql.NullString `json:"last_name"`
+	Name          sql.NullString `json:"name"`
+	ImageUrl      sql.NullString `json:"image_url"`
+	EmailVerified sql.NullBool   `json:"email_verified"`
+	LastSignInAt  sql.NullTime   `json:"last_sign_in_at"`
+}
+
+func (q *Queries) UpsertUserByClerkID(ctx context.Context, arg UpsertUserByClerkIDParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, upsertUserByClerkID,
+		arg.ClerkID,
+		arg.Email,
+		arg.FirstName,
+		arg.LastName,
+		arg.Name,
+		arg.ImageUrl,
+		arg.EmailVerified,
+		arg.LastSignInAt,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.ClerkID,
+		&i.FirstName,
+		&i.LastName,
+		&i.ImageUrl,
+		&i.EmailVerified,
+		&i.LastSignInAt,
+		&i.Banned,
 	)
 	return i, err
 }

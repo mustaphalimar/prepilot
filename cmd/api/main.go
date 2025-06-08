@@ -43,8 +43,9 @@ func main() {
 
 	// Application configuration
 	appConfig := app.Config{
-		Addr: env.GetString("ADDR", ":8080"),
-		Env:  env.GetString("ENV", "development"),
+		Addr:               env.GetString("ADDR", ":8080"),
+		Env:                env.GetString("ENV", "development"),
+		ClerkWebhookSecret: env.GetString("CLERK_WEBHOOK_SECRET", ""),
 	}
 
 	// Create application instance

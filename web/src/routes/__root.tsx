@@ -8,19 +8,22 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
+import { DemoPage } from "@/components/production/DemoPage";
 
 import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 import { useEffect } from "react";
+import { env, validateEnvironment, isSafeToShowApp } from "@/lib/env";
 
-// Import your Publishable Key
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+// Import test utility in development
+if (env.isDevelopment) {
+  import("@/lib/env-test");
+}
 
 // Public routes that don't require authentication
 const publicRoutes = ["/auth", "/"];
 
-if (!PUBLISHABLE_KEY) {
-  throw new Error("Missing Publishable Key");
-}
+// Validate environment on import
+validateEnvironment();
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -44,7 +47,7 @@ function AuthWrapper() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <div className="animate-spin-fast rounded-full h-12 w-12 border-b-2 border-primary"></div>
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -65,7 +68,7 @@ function AuthWrapper() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="animate-spin-fast rounded-full h-12 w-12 border-b-2 border-primary"></div>
           <p className="text-gray-600">Please sign in to continue...</p>
         </div>
       </div>
@@ -87,11 +90,21 @@ function AuthWrapper() {
 }
 
 function RootComponent() {
+  // If in production, show demo page instead of the actual app for safety
+  if (!isSafeToShowApp()) {
+    return <DemoPage />;
+  }
+
   return (
     <>
-      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+      <ClerkProvider
+        publishableKey={env.clerkPublishableKey!}
+        afterSignOutUrl="/"
+      >
         <AuthWrapper />
-        <TanStackRouterDevtools position="bottom-right" />
+        {env.features.enableRouterDevtools && (
+          <TanStackRouterDevtools position="bottom-right" />
+        )}
       </ClerkProvider>
     </>
   );
