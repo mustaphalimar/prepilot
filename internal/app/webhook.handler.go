@@ -86,38 +86,55 @@ type ClerkExternalAccount struct {
 
 // ClerkWebhookHandler handles webhook events from Clerk
 func (app *Application) ClerkWebhookHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("🔔 Clerk webhook received: %s %s\n", r.Method, r.URL.Path)
+	fmt.Printf("📋 Headers: %+v\n", r.Header)
+
 	// Read the request body
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
+		fmt.Printf("❌ Failed to read request body: %v\n", err)
 		app.writeJSONError(w, http.StatusBadRequest, "Failed to read request body")
 		return
 	}
 	defer r.Body.Close()
 
+	fmt.Printf("📄 Raw webhook body: %s\n", string(body))
+
 	// Verify the webhook signature
 	if !app.verifyClerkWebhook(r, body) {
+		fmt.Printf("❌ Webhook signature verification failed\n")
 		app.writeJSONError(w, http.StatusUnauthorized, "Invalid webhook signature")
 		return
 	}
 
+	fmt.Printf("✅ Webhook signature verified\n")
+
 	// Parse the webhook event
 	var event ClerkWebhookEvent
 	if err := json.Unmarshal(body, &event); err != nil {
+		fmt.Printf("❌ Failed to parse JSON: %v\n", err)
 		app.writeJSONError(w, http.StatusBadRequest, "Invalid JSON payload")
 		return
 	}
 
+	fmt.Printf("📦 Parsed event - Type: %s, Object: %s\n", event.Type, event.Object)
+
 	// Handle different event types
 	switch event.Type {
 	case "user.created":
+		fmt.Printf("👤 Processing user.created event\n")
 		app.handleUserCreated(w, r, event.Data)
 	case "user.updated":
+		fmt.Printf("👤 Processing user.updated event\n")
 		app.handleUserUpdated(w, r, event.Data)
 	case "user.deleted":
+		fmt.Printf("👤 Processing user.deleted event\n")
 		app.handleUserDeleted(w, r, event.Data)
 	case "session.created":
+		fmt.Printf("🔐 Processing session.created event\n")
 		app.handleSessionCreated(w, r, event.Data)
 	default:
+		fmt.Printf("⚠️ Unhandled event type: %s\n", event.Type)
 		// Return 200 for unhandled events to acknowledge receipt
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]string{
@@ -130,19 +147,26 @@ func (app *Application) ClerkWebhookHandler(w http.ResponseWriter, r *http.Reque
 func (app *Application) verifyClerkWebhook(r *http.Request, body []byte) bool {
 	// Get the webhook secret from environment variables
 	webhookSecret := app.Config.ClerkWebhookSecret
+	fmt.Printf("🔐 Webhook secret configured: %v\n", webhookSecret != "")
+	
 	if webhookSecret == "" {
 		// In development, you might want to skip verification
 		if app.Config.Env == "development" {
+			fmt.Printf("⚠️ Skipping webhook verification in development mode\n")
 			return true
 		}
+		fmt.Printf("❌ No webhook secret configured for production\n")
 		return false
 	}
 
 	// Get the signature from headers
 	signature := r.Header.Get("svix-signature")
 	if signature == "" {
+		fmt.Printf("❌ No svix-signature header found\n")
 		return false
 	}
+
+	fmt.Printf("🔑 Signature header: %s\n", signature)
 
 	// Parse the signature header
 	signatures := make(map[string]string)
@@ -156,15 +180,20 @@ func (app *Application) verifyClerkWebhook(r *http.Request, body []byte) bool {
 	// Get the timestamp
 	timestamp := r.Header.Get("svix-timestamp")
 	if timestamp == "" {
+		fmt.Printf("❌ No svix-timestamp header found\n")
 		return false
 	}
+
+	fmt.Printf("⏰ Timestamp: %s\n", timestamp)
 
 	// Verify the timestamp is recent (within 5 minutes)
 	ts, err := strconv.ParseInt(timestamp, 10, 64)
 	if err != nil {
+		fmt.Printf("❌ Invalid timestamp format: %v\n", err)
 		return false
 	}
 	if time.Now().Unix()-ts > 300 {
+		fmt.Printf("❌ Timestamp too old: %d seconds ago\n", time.Now().Unix()-ts)
 		return false
 	}
 
@@ -179,54 +208,84 @@ func (app *Application) verifyClerkWebhook(r *http.Request, body []byte) bool {
 	// Compare with provided signature
 	providedSignature, exists := signatures["v1"]
 	if !exists {
+		fmt.Printf("❌ No v1 signature found in header\n")
 		return false
 	}
 
-	return hmac.Equal([]byte(expectedSignature), []byte(providedSignature))
+	isValid := hmac.Equal([]byte(expectedSignature), []byte(providedSignature))
+	fmt.Printf("🔍 Signature verification result: %v\n", isValid)
+	
+	return isValid
 }
 
 // handleUserCreated processes user.created webhook events
 func (app *Application) handleUserCreated(w http.ResponseWriter, r *http.Request, data json.RawMessage) {
+	fmt.Printf("🔄 Starting handleUserCreated\n")
+	fmt.Printf("📄 User data JSON: %s\n", string(data))
+
 	var user ClerkUser
 	if err := json.Unmarshal(data, &user); err != nil {
+		fmt.Printf("❌ Failed to unmarshal user data: %v\n", err)
 		app.writeJSONError(w, http.StatusBadRequest, "Invalid user data")
 		return
 	}
 
+	fmt.Printf("👤 Parsed user: ID=%s, FirstName=%v, LastName=%v, ImageURL=%s\n", 
+		user.ID, user.FirstName, user.LastName, user.ImageURL)
+	fmt.Printf("📧 Email addresses: %+v\n", user.EmailAddresses)
+
 	// Get primary email address
 	primaryEmail := app.getPrimaryEmail(user.EmailAddresses)
 	if primaryEmail == "" {
+		fmt.Printf("❌ No primary email found for user %s\n", user.ID)
 		app.writeJSONError(w, http.StatusBadRequest, "User has no email address")
 		return
 	}
 
+	fmt.Printf("📧 Primary email: %s\n", primaryEmail)
+
 	// Prepare user data for database
 	emailVerified := app.isEmailVerified(user.EmailAddresses)
+	fullName := app.getFullName(user.FirstName, user.LastName)
+	
+	fmt.Printf("✅ Email verified: %v\n", emailVerified)
+	fmt.Printf("👤 Full name: %v\n", fullName)
+
 	params := store.UpsertUserByClerkIDParams{
 		ClerkID:       user.ID,
 		Email:         primaryEmail,
 		FirstName:     stringToNullString(user.FirstName),
 		LastName:      stringToNullString(user.LastName),
-		Name:          stringToNullString(app.getFullName(user.FirstName, user.LastName)),
+		Name:          stringToNullString(fullName),
 		ImageUrl:      stringValueToNullString(user.ImageURL),
 		EmailVerified: boolToNullBool(&emailVerified),
 		LastSignInAt:  timeToNullTime(app.convertTimestamp(user.LastSignInAt)),
 	}
 
+	fmt.Printf("🔧 Database params prepared: ClerkID=%s, Email=%s\n", params.ClerkID, params.Email)
+
 	// Save user to database
+	fmt.Printf("💾 Attempting to save user to database...\n")
 	queries := store.New(app.DB)
 	dbUser, err := queries.UpsertUserByClerkID(r.Context(), params)
 	if err != nil {
-		app.writeJSONError(w, http.StatusInternalServerError, "Failed to save user")
+		fmt.Printf("❌ Database error: %v\n", err)
+		app.writeJSONError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to save user: %v", err))
 		return
 	}
 
-// Return success response
-w.WriteHeader(http.StatusOK)
-json.NewEncoder(w).Encode(map[string]interface{}{
-	"message": "User created successfully",
-	"user_id": dbUser.ID,
-})
+	fmt.Printf("✅ User saved successfully! Database ID: %s\n", dbUser.ID)
+
+	// Return success response
+	w.WriteHeader(http.StatusOK)
+	response := map[string]interface{}{
+		"message": "User created successfully",
+		"user_id": dbUser.ID,
+		"clerk_id": dbUser.ClerkID,
+	}
+	
+	fmt.Printf("📤 Sending response: %+v\n", response)
+	json.NewEncoder(w).Encode(response)
 }
 
 // handleUserUpdated processes user.updated webhook events
