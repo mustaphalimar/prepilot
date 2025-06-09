@@ -42,32 +42,32 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/dashboard",
       icon: IconHome,
     },
     {
       title: "Study Plans",
-      url: "#",
+      url: "/study-plans",
       icon: IconCalendarEvent,
     },
     {
       title: "Practice Tests",
-      url: "#",
+      url: "/practice-tests",
       icon: IconFlask,
     },
     {
       title: "Flashcards",
-      url: "#",
+      url: "/flashcards",
       icon: IconBrain,
     },
     {
       title: "Progress",
-      url: "#",
+      url: "/progress",
       icon: IconProgress,
     },
     {
       title: "Goals",
-      url: "#",
+      url: "/goals",
       icon: IconTarget,
     },
   ],
