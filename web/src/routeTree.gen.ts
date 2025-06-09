@@ -11,12 +11,47 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as StudyPlansImport } from './routes/study-plans'
+import { Route as ProgressImport } from './routes/progress'
+import { Route as PracticeTestsImport } from './routes/practice-tests'
+import { Route as GoalsImport } from './routes/goals'
+import { Route as FlashcardsImport } from './routes/flashcards'
 import { Route as DashboardImport } from './routes/dashboard'
 import { Route as AuthImport } from './routes/auth'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
+
+const StudyPlansRoute = StudyPlansImport.update({
+  id: '/study-plans',
+  path: '/study-plans',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ProgressRoute = ProgressImport.update({
+  id: '/progress',
+  path: '/progress',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PracticeTestsRoute = PracticeTestsImport.update({
+  id: '/practice-tests',
+  path: '/practice-tests',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const GoalsRoute = GoalsImport.update({
+  id: '/goals',
+  path: '/goals',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const FlashcardsRoute = FlashcardsImport.update({
+  id: '/flashcards',
+  path: '/flashcards',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const DashboardRoute = DashboardImport.update({
   id: '/dashboard',
@@ -74,6 +109,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardImport
       parentRoute: typeof rootRoute
     }
+    '/flashcards': {
+      id: '/flashcards'
+      path: '/flashcards'
+      fullPath: '/flashcards'
+      preLoaderRoute: typeof FlashcardsImport
+      parentRoute: typeof rootRoute
+    }
+    '/goals': {
+      id: '/goals'
+      path: '/goals'
+      fullPath: '/goals'
+      preLoaderRoute: typeof GoalsImport
+      parentRoute: typeof rootRoute
+    }
+    '/practice-tests': {
+      id: '/practice-tests'
+      path: '/practice-tests'
+      fullPath: '/practice-tests'
+      preLoaderRoute: typeof PracticeTestsImport
+      parentRoute: typeof rootRoute
+    }
+    '/progress': {
+      id: '/progress'
+      path: '/progress'
+      fullPath: '/progress'
+      preLoaderRoute: typeof ProgressImport
+      parentRoute: typeof rootRoute
+    }
+    '/study-plans': {
+      id: '/study-plans'
+      path: '/study-plans'
+      fullPath: '/study-plans'
+      preLoaderRoute: typeof StudyPlansImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -84,6 +154,11 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/flashcards': typeof FlashcardsRoute
+  '/goals': typeof GoalsRoute
+  '/practice-tests': typeof PracticeTestsRoute
+  '/progress': typeof ProgressRoute
+  '/study-plans': typeof StudyPlansRoute
 }
 
 export interface FileRoutesByTo {
@@ -91,6 +166,11 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/flashcards': typeof FlashcardsRoute
+  '/goals': typeof GoalsRoute
+  '/practice-tests': typeof PracticeTestsRoute
+  '/progress': typeof ProgressRoute
+  '/study-plans': typeof StudyPlansRoute
 }
 
 export interface FileRoutesById {
@@ -99,14 +179,47 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/flashcards': typeof FlashcardsRoute
+  '/goals': typeof GoalsRoute
+  '/practice-tests': typeof PracticeTestsRoute
+  '/progress': typeof ProgressRoute
+  '/study-plans': typeof StudyPlansRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/auth' | '/dashboard'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/dashboard'
+    | '/flashcards'
+    | '/goals'
+    | '/practice-tests'
+    | '/progress'
+    | '/study-plans'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/auth' | '/dashboard'
-  id: '__root__' | '/' | '/about' | '/auth' | '/dashboard'
+  to:
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/dashboard'
+    | '/flashcards'
+    | '/goals'
+    | '/practice-tests'
+    | '/progress'
+    | '/study-plans'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/dashboard'
+    | '/flashcards'
+    | '/goals'
+    | '/practice-tests'
+    | '/progress'
+    | '/study-plans'
   fileRoutesById: FileRoutesById
 }
 
@@ -115,6 +228,11 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
+  FlashcardsRoute: typeof FlashcardsRoute
+  GoalsRoute: typeof GoalsRoute
+  PracticeTestsRoute: typeof PracticeTestsRoute
+  ProgressRoute: typeof ProgressRoute
+  StudyPlansRoute: typeof StudyPlansRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -122,6 +240,11 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
+  FlashcardsRoute: FlashcardsRoute,
+  GoalsRoute: GoalsRoute,
+  PracticeTestsRoute: PracticeTestsRoute,
+  ProgressRoute: ProgressRoute,
+  StudyPlansRoute: StudyPlansRoute,
 }
 
 export const routeTree = rootRoute
@@ -137,7 +260,12 @@ export const routeTree = rootRoute
         "/",
         "/about",
         "/auth",
-        "/dashboard"
+        "/dashboard",
+        "/flashcards",
+        "/goals",
+        "/practice-tests",
+        "/progress",
+        "/study-plans"
       ]
     },
     "/": {
@@ -151,6 +279,21 @@ export const routeTree = rootRoute
     },
     "/dashboard": {
       "filePath": "dashboard.tsx"
+    },
+    "/flashcards": {
+      "filePath": "flashcards.tsx"
+    },
+    "/goals": {
+      "filePath": "goals.tsx"
+    },
+    "/practice-tests": {
+      "filePath": "practice-tests.tsx"
+    },
+    "/progress": {
+      "filePath": "progress.tsx"
+    },
+    "/study-plans": {
+      "filePath": "study-plans.tsx"
     }
   }
 }
