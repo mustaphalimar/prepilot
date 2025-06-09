@@ -77,6 +77,7 @@ func (mr *MigrationRunner) RunMigrations() error {
 
 // createMigrationsTable creates the migrations tracking table
 func (mr *MigrationRunner) createMigrationsTable() error {
+	// First ensure the table exists
 	query := `
 		CREATE TABLE IF NOT EXISTS schema_migrations (
 			version INTEGER PRIMARY KEY,
@@ -85,7 +86,12 @@ func (mr *MigrationRunner) createMigrationsTable() error {
 		);
 	`
 	_, err := mr.db.Exec(query)
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to create schema_migrations table: %w", err)
+	}
+	
+	fmt.Println("✅ Schema migrations table ready")
+	return nil
 }
 
 // getAvailableMigrations reads migration files from embedded filesystem
@@ -153,6 +159,25 @@ func (mr *MigrationRunner) getAvailableMigrations() ([]Migration, error) {
 
 // getAppliedMigrations gets list of already applied migrations
 func (mr *MigrationRunner) getAppliedMigrations() (map[int]Migration, error) {
+	// First check if schema_migrations table exists
+	var tableExists bool
+	err := mr.db.QueryRow(`
+		SELECT EXISTS (
+			SELECT FROM information_schema.tables 
+			WHERE table_schema = 'public' 
+			AND table_name = 'schema_migrations'
+		)
+	`).Scan(&tableExists)
+	
+	if err != nil {
+		return nil, err
+	}
+	
+	if !tableExists {
+		// If table doesn't exist, return empty map (no migrations applied)
+		return make(map[int]Migration), nil
+	}
+
 	query := `
 		SELECT version, name, applied_at 
 		FROM schema_migrations 
