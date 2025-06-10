@@ -32,6 +32,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Link } from "@tanstack/react-router";
 
 const data = {
   user: {
@@ -42,76 +43,76 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/dashboard",
       icon: IconHome,
     },
     {
       title: "Study Plans",
-      url: "#",
+      url: "/study-plans",
       icon: IconCalendarEvent,
     },
     {
       title: "Practice Tests",
-      url: "#",
+      url: "/practice-tests",
       icon: IconFlask,
     },
     {
       title: "Flashcards",
-      url: "#",
+      url: "/flashcards",
       icon: IconBrain,
     },
     {
       title: "Progress",
-      url: "#",
+      url: "/progress",
       icon: IconProgress,
     },
     {
       title: "Goals",
-      url: "#",
+      url: "/goals",
       icon: IconTarget,
     },
   ],
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/settings",
       icon: IconSettings,
     },
     {
       title: "Help & Support",
-      url: "#",
+      url: "/help",
       icon: IconHelp,
     },
     {
       title: "Profile",
-      url: "#",
+      url: "/profile",
       icon: IconUser,
     },
   ],
   documents: [
     {
-      name: "Study Materials",
-      url: "#",
+      name: "Subjects",
+      url: "/subjects",
       icon: IconBook,
     },
     {
       name: "Exam Notes",
-      url: "#",
+      url: "/exam-notes",
       icon: IconNote,
     },
     {
       name: "Test Results",
-      url: "#",
+      url: "/test-results",
       icon: IconClipboardCheck,
     },
     {
       name: "Study Timer",
-      url: "#",
+      url: "/study-timer",
       icon: IconClockHour4,
     },
     {
       name: "Achievements",
-      url: "#",
+      url: "/achievements",
       icon: IconTrophy,
     },
   ],
@@ -127,10 +128,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <Link to="/">
                 <IconBulb className="!size-5" />
                 <span className="text-base font-semibold">PrePilot</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

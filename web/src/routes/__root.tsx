@@ -15,6 +15,7 @@ import { useEffect } from "react";
 import { env, isSafeToShowApp, validateEnvironment } from "@/lib/env";
 import { DemoPage } from "@/components/production/DemoPage";
 
+
 // Import test utility in development
 if (env.isDevelopment) {
   import("@/lib/env-test");
@@ -36,6 +37,8 @@ function AuthWrapper() {
   const location = useLocation();
 
   const isPublicRoute = publicRoutes.includes(location.pathname);
+
+
 
   useEffect(() => {
     if (isLoaded && !isSignedIn && !isPublicRoute) {
