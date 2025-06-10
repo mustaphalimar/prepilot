@@ -12,11 +12,11 @@ migration:
 
 .PHONY: migrate-up
 migrate-up:
-	@migrate -path=$(MIGRATIONS_PATH) -database=$(DATABASE_URL) up
+	@DATABASE_URL=$(DATABASE_URL) go run cmd/migrate/main.go
 
 .PHONY: migrate-down
 migrate-down:
-	@migrate -path=$(MIGRATIONS_PATH) -database=$(DATABASE_URL) down $(filter-out $@,$(MAKECMDGOALS))
+	@echo "Migration rollback not implemented in Go migration system. Use SQL manually if needed."
 
 
 .PHONY: seed

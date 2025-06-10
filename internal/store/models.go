@@ -11,6 +11,31 @@ import (
 	"github.com/google/uuid"
 )
 
+type StudyPlan struct {
+	ID          uuid.UUID      `json:"id"`
+	UserID      string         `json:"user_id"`
+	Title       string         `json:"title"`
+	Subject     string         `json:"subject"`
+	Description sql.NullString `json:"description"`
+	ExamDate    time.Time      `json:"exam_date"`
+	StartDate   time.Time      `json:"start_date"`
+	EndDate     time.Time      `json:"end_date"`
+	CreatedAt   sql.NullTime   `json:"created_at"`
+	UpdatedAt   sql.NullTime   `json:"updated_at"`
+}
+
+type StudyTask struct {
+	ID          uuid.UUID      `json:"id"`
+	PlanID      uuid.NullUUID  `json:"plan_id"`
+	Title       string         `json:"title"`
+	DueDate     time.Time      `json:"due_date"`
+	IsCompleted sql.NullBool   `json:"is_completed"`
+	Priority    sql.NullInt32  `json:"priority"`
+	Notes       sql.NullString `json:"notes"`
+	CreatedAt   sql.NullTime   `json:"created_at"`
+	UpdatedAt   sql.NullTime   `json:"updated_at"`
+}
+
 type User struct {
 	ID            uuid.UUID      `json:"id"`
 	Name          sql.NullString `json:"name"`
