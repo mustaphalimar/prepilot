@@ -42,7 +42,14 @@ func (app *Application) GetStudyPlansHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	app.writeJSON(w, http.StatusOK, studyPlans)
+	// Ensure we always return an empty array instead of null when no study plans exist
+	if studyPlans == nil {
+		studyPlans = []store.StudyPlan{}
+	}
+
+	if err := app.jsonResponse(w, http.StatusOK, studyPlans); err != nil {
+		app.internalServerError(w, r, err)
+	}
 }
 
 // GetStudyPlanHandler retrieves a specific study plan by ID
@@ -109,6 +116,11 @@ func (app *Application) GetStudyPlanTasksHandler(w http.ResponseWriter, r *http.
 	response := make([]StudyTaskResponse, len(tasks))
 	for i, task := range tasks {
 		response[i] = convertStudyTaskToResponse(task)
+	}
+
+	// Ensure we always return an empty array instead of null when no tasks exist
+	if response == nil {
+		response = []StudyTaskResponse{}
 	}
 
 	app.writeJSON(w, http.StatusOK, response)

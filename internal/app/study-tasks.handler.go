@@ -195,6 +195,11 @@ func (app *Application) GetStudyTasksHandler(w http.ResponseWriter, r *http.Requ
 		response[i] = convertStudyTaskToResponse(task)
 	}
 
+	// Ensure we always return an empty array instead of null when no tasks exist
+	if response == nil {
+		response = []StudyTaskResponse{}
+	}
+
 	app.writeJSON(w, http.StatusOK, response)
 }
 

@@ -24,6 +24,12 @@ func (app *Application) RegisterRoutes(r chi.Router) {
 			// Add authentication middleware
 			r.Use(app.AuthMiddleware)
 
+			// User routes
+			r.Route("/user", func(r chi.Router) {
+				r.Post("/initialize", app.WithAuth(app.InitializeUserHandler))
+				r.Get("/profile", app.WithAuth(app.GetUserProfileHandler))
+			})
+
 			// Study plans routes
 			r.Route("/study-plans", func(r chi.Router) {
 				r.Post("/", app.WithAuth(app.createStudyPlanHandler))
@@ -32,12 +38,6 @@ func (app *Application) RegisterRoutes(r chi.Router) {
 					r.Get("/", app.WithAuth(app.GetStudyPlanHandler))
 					r.Get("/tasks", app.WithAuth(app.GetStudyPlanTasksHandler))
 				})
-			})
-
-			// User routes
-			r.Route("/user", func(r chi.Router) {
-				r.Post("/initialize", app.WithAuth(app.InitializeUserHandler))
-				r.Get("/profile", app.WithAuth(app.GetUserProfileHandler))
 			})
 
 			// Study tasks routes
