@@ -11,21 +11,53 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as TestResultsImport } from './routes/test-results'
+import { Route as SubjectsImport } from './routes/subjects'
+import { Route as StudyTimerImport } from './routes/study-timer'
 import { Route as StudyPlansImport } from './routes/study-plans'
+import { Route as SettingsImport } from './routes/settings'
 import { Route as ProgressImport } from './routes/progress'
+import { Route as ProfileImport } from './routes/profile'
 import { Route as PracticeTestsImport } from './routes/practice-tests'
+import { Route as HelpImport } from './routes/help'
 import { Route as GoalsImport } from './routes/goals'
 import { Route as FlashcardsImport } from './routes/flashcards'
+import { Route as ExamNotesImport } from './routes/exam-notes'
 import { Route as DashboardImport } from './routes/dashboard'
 import { Route as AuthImport } from './routes/auth'
+import { Route as AchievementsImport } from './routes/achievements'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
 
+const TestResultsRoute = TestResultsImport.update({
+  id: '/test-results',
+  path: '/test-results',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SubjectsRoute = SubjectsImport.update({
+  id: '/subjects',
+  path: '/subjects',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const StudyTimerRoute = StudyTimerImport.update({
+  id: '/study-timer',
+  path: '/study-timer',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const StudyPlansRoute = StudyPlansImport.update({
   id: '/study-plans',
   path: '/study-plans',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SettingsRoute = SettingsImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -35,9 +67,21 @@ const ProgressRoute = ProgressImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ProfileRoute = ProfileImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const PracticeTestsRoute = PracticeTestsImport.update({
   id: '/practice-tests',
   path: '/practice-tests',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const HelpRoute = HelpImport.update({
+  id: '/help',
+  path: '/help',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -53,6 +97,12 @@ const FlashcardsRoute = FlashcardsImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ExamNotesRoute = ExamNotesImport.update({
+  id: '/exam-notes',
+  path: '/exam-notes',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const DashboardRoute = DashboardImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -62,6 +112,12 @@ const DashboardRoute = DashboardImport.update({
 const AuthRoute = AuthImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AchievementsRoute = AchievementsImport.update({
+  id: '/achievements',
+  path: '/achievements',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -95,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutImport
       parentRoute: typeof rootRoute
     }
+    '/achievements': {
+      id: '/achievements'
+      path: '/achievements'
+      fullPath: '/achievements'
+      preLoaderRoute: typeof AchievementsImport
+      parentRoute: typeof rootRoute
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -107,6 +170,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardImport
+      parentRoute: typeof rootRoute
+    }
+    '/exam-notes': {
+      id: '/exam-notes'
+      path: '/exam-notes'
+      fullPath: '/exam-notes'
+      preLoaderRoute: typeof ExamNotesImport
       parentRoute: typeof rootRoute
     }
     '/flashcards': {
@@ -123,11 +193,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GoalsImport
       parentRoute: typeof rootRoute
     }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpImport
+      parentRoute: typeof rootRoute
+    }
     '/practice-tests': {
       id: '/practice-tests'
       path: '/practice-tests'
       fullPath: '/practice-tests'
       preLoaderRoute: typeof PracticeTestsImport
+      parentRoute: typeof rootRoute
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileImport
       parentRoute: typeof rootRoute
     }
     '/progress': {
@@ -137,11 +221,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProgressImport
       parentRoute: typeof rootRoute
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsImport
+      parentRoute: typeof rootRoute
+    }
     '/study-plans': {
       id: '/study-plans'
       path: '/study-plans'
       fullPath: '/study-plans'
       preLoaderRoute: typeof StudyPlansImport
+      parentRoute: typeof rootRoute
+    }
+    '/study-timer': {
+      id: '/study-timer'
+      path: '/study-timer'
+      fullPath: '/study-timer'
+      preLoaderRoute: typeof StudyTimerImport
+      parentRoute: typeof rootRoute
+    }
+    '/subjects': {
+      id: '/subjects'
+      path: '/subjects'
+      fullPath: '/subjects'
+      preLoaderRoute: typeof SubjectsImport
+      parentRoute: typeof rootRoute
+    }
+    '/test-results': {
+      id: '/test-results'
+      path: '/test-results'
+      fullPath: '/test-results'
+      preLoaderRoute: typeof TestResultsImport
       parentRoute: typeof rootRoute
     }
   }
@@ -152,38 +264,62 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/achievements': typeof AchievementsRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/exam-notes': typeof ExamNotesRoute
   '/flashcards': typeof FlashcardsRoute
   '/goals': typeof GoalsRoute
+  '/help': typeof HelpRoute
   '/practice-tests': typeof PracticeTestsRoute
+  '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
+  '/settings': typeof SettingsRoute
   '/study-plans': typeof StudyPlansRoute
+  '/study-timer': typeof StudyTimerRoute
+  '/subjects': typeof SubjectsRoute
+  '/test-results': typeof TestResultsRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/achievements': typeof AchievementsRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/exam-notes': typeof ExamNotesRoute
   '/flashcards': typeof FlashcardsRoute
   '/goals': typeof GoalsRoute
+  '/help': typeof HelpRoute
   '/practice-tests': typeof PracticeTestsRoute
+  '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
+  '/settings': typeof SettingsRoute
   '/study-plans': typeof StudyPlansRoute
+  '/study-timer': typeof StudyTimerRoute
+  '/subjects': typeof SubjectsRoute
+  '/test-results': typeof TestResultsRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/achievements': typeof AchievementsRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/exam-notes': typeof ExamNotesRoute
   '/flashcards': typeof FlashcardsRoute
   '/goals': typeof GoalsRoute
+  '/help': typeof HelpRoute
   '/practice-tests': typeof PracticeTestsRoute
+  '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
+  '/settings': typeof SettingsRoute
   '/study-plans': typeof StudyPlansRoute
+  '/study-timer': typeof StudyTimerRoute
+  '/subjects': typeof SubjectsRoute
+  '/test-results': typeof TestResultsRoute
 }
 
 export interface FileRouteTypes {
@@ -191,60 +327,100 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/achievements'
     | '/auth'
     | '/dashboard'
+    | '/exam-notes'
     | '/flashcards'
     | '/goals'
+    | '/help'
     | '/practice-tests'
+    | '/profile'
     | '/progress'
+    | '/settings'
     | '/study-plans'
+    | '/study-timer'
+    | '/subjects'
+    | '/test-results'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/achievements'
     | '/auth'
     | '/dashboard'
+    | '/exam-notes'
     | '/flashcards'
     | '/goals'
+    | '/help'
     | '/practice-tests'
+    | '/profile'
     | '/progress'
+    | '/settings'
     | '/study-plans'
+    | '/study-timer'
+    | '/subjects'
+    | '/test-results'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/achievements'
     | '/auth'
     | '/dashboard'
+    | '/exam-notes'
     | '/flashcards'
     | '/goals'
+    | '/help'
     | '/practice-tests'
+    | '/profile'
     | '/progress'
+    | '/settings'
     | '/study-plans'
+    | '/study-timer'
+    | '/subjects'
+    | '/test-results'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AchievementsRoute: typeof AchievementsRoute
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
+  ExamNotesRoute: typeof ExamNotesRoute
   FlashcardsRoute: typeof FlashcardsRoute
   GoalsRoute: typeof GoalsRoute
+  HelpRoute: typeof HelpRoute
   PracticeTestsRoute: typeof PracticeTestsRoute
+  ProfileRoute: typeof ProfileRoute
   ProgressRoute: typeof ProgressRoute
+  SettingsRoute: typeof SettingsRoute
   StudyPlansRoute: typeof StudyPlansRoute
+  StudyTimerRoute: typeof StudyTimerRoute
+  SubjectsRoute: typeof SubjectsRoute
+  TestResultsRoute: typeof TestResultsRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AchievementsRoute: AchievementsRoute,
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
+  ExamNotesRoute: ExamNotesRoute,
   FlashcardsRoute: FlashcardsRoute,
   GoalsRoute: GoalsRoute,
+  HelpRoute: HelpRoute,
   PracticeTestsRoute: PracticeTestsRoute,
+  ProfileRoute: ProfileRoute,
   ProgressRoute: ProgressRoute,
+  SettingsRoute: SettingsRoute,
   StudyPlansRoute: StudyPlansRoute,
+  StudyTimerRoute: StudyTimerRoute,
+  SubjectsRoute: SubjectsRoute,
+  TestResultsRoute: TestResultsRoute,
 }
 
 export const routeTree = rootRoute
@@ -259,13 +435,21 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/about",
+        "/achievements",
         "/auth",
         "/dashboard",
+        "/exam-notes",
         "/flashcards",
         "/goals",
+        "/help",
         "/practice-tests",
+        "/profile",
         "/progress",
-        "/study-plans"
+        "/settings",
+        "/study-plans",
+        "/study-timer",
+        "/subjects",
+        "/test-results"
       ]
     },
     "/": {
@@ -274,11 +458,17 @@ export const routeTree = rootRoute
     "/about": {
       "filePath": "about.tsx"
     },
+    "/achievements": {
+      "filePath": "achievements.tsx"
+    },
     "/auth": {
       "filePath": "auth.tsx"
     },
     "/dashboard": {
       "filePath": "dashboard.tsx"
+    },
+    "/exam-notes": {
+      "filePath": "exam-notes.tsx"
     },
     "/flashcards": {
       "filePath": "flashcards.tsx"
@@ -286,14 +476,32 @@ export const routeTree = rootRoute
     "/goals": {
       "filePath": "goals.tsx"
     },
+    "/help": {
+      "filePath": "help.tsx"
+    },
     "/practice-tests": {
       "filePath": "practice-tests.tsx"
+    },
+    "/profile": {
+      "filePath": "profile.tsx"
     },
     "/progress": {
       "filePath": "progress.tsx"
     },
+    "/settings": {
+      "filePath": "settings.tsx"
+    },
     "/study-plans": {
       "filePath": "study-plans.tsx"
+    },
+    "/study-timer": {
+      "filePath": "study-timer.tsx"
+    },
+    "/subjects": {
+      "filePath": "subjects.tsx"
+    },
+    "/test-results": {
+      "filePath": "test-results.tsx"
     }
   }
 }

@@ -14,7 +14,7 @@ import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 import { useEffect } from "react";
 import { env, isSafeToShowApp, validateEnvironment } from "@/lib/env";
 import { DemoPage } from "@/components/production/DemoPage";
-import { useQuery } from "@tanstack/react-query";
+
 
 // Import test utility in development
 if (env.isDevelopment) {
@@ -32,37 +32,13 @@ export const Route = createRootRoute({
 });
 
 function AuthWrapper() {
-  const { isSignedIn, isLoaded, getToken } = useAuth();
+  const { isSignedIn, isLoaded } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const isPublicRoute = publicRoutes.includes(location.pathname);
 
-  // Initialize user in database after sign-in
-  useQuery({
-    queryKey: ["user-initialize"],
-    queryFn: async () => {
-      const token = await getToken();
-      if (!token) throw new Error("No authentication token");
 
-      const response = await fetch(`${env.apiUrl}/v1/user/initialize`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to initialize user");
-      }
-
-      return response.json();
-    },
-    enabled: isSignedIn && isLoaded,
-    retry: 2,
-    staleTime: Infinity, // Only run once per session
-  });
 
   useEffect(() => {
     if (isLoaded && !isSignedIn && !isPublicRoute) {

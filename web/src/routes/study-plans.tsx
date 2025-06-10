@@ -1,10 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "@clerk/clerk-react";
 import { useState } from "react";
 import {
   Plus,
-  Calendar,
+  Calendar as CalendarIcon,
   CheckCircle,
   Circle,
   Trash2,
@@ -39,309 +37,65 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { env } from "@/lib/env";
+import {
+  useStudyPlans,
+  useStudyTasks,
+  StudyPlan,
+  StudyTask,
+  CreateStudyPlanRequest,
+  CreateTaskRequest,
+  UpdateTaskRequest,
+} from "@/hooks";
+import { DatePicker } from "@/components/ui/date-picker";
+
 export const Route = createFileRoute("/study-plans")({
   component: StudyPlansPage,
 });
 
-// Types
-interface StudyPlan {
-  id: string;
-  user_id: string;
-  title: string;
-  subject: string;
-  description?: string;
-  exam_date: string;
-  start_date: string;
-  end_date: string;
-  created_at: string;
-  updated_at: string;
-}
-
-interface StudyTask {
-  id: string;
-  plan_id?: string;
-  title: string;
-  due_date: string;
-  is_completed: boolean;
-  priority?: number;
-  notes?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-interface CreateStudyPlanRequest {
-  title: string;
-  subject: string;
-  description?: string;
-  exam_date: string;
-  start_date: string;
-  end_date: string;
-}
-
-interface CreateTaskRequest {
-  plan_id?: string;
-  title: string;
-  due_date: string;
-  is_completed?: boolean;
-  priority?: number;
-  notes?: string;
-}
-
-interface UpdateTaskRequest {
-  title: string;
-  due_date: string;
-  is_completed: boolean;
-  priority?: number;
-  notes?: string;
-}
-
-async function fetchStudyPlans(token: string): Promise<StudyPlan[]> {
-  const response = await fetch(`${env.apiUrl}/v1/study-plans`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch study plans");
-  }
-
-  return response.json();
-}
-
-async function createStudyPlan(
-  token: string,
-  plan: CreateStudyPlanRequest,
-): Promise<StudyPlan> {
-  const response = await fetch(`${env.apiUrl}/study-plans`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(plan),
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to create study plan");
-  }
-
-  return response.json();
-}
-
-async function fetchStudyPlanTasks(
-  token: string,
-  planId: string,
-): Promise<StudyTask[]> {
-  const response = await fetch(`${env.apiUrl}/study-plans/${planId}/tasks`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch study plan tasks");
-  }
-
-  return response.json();
-}
-
-async function createStudyTask(
-  token: string,
-  task: CreateTaskRequest,
-): Promise<StudyTask> {
-  const response = await fetch(`${env.apiUrl}/study-tasks`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(task),
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to create study task");
-  }
-
-  return response.json();
-}
-
-async function updateStudyTask(
-  token: string,
-  taskId: string,
-  task: UpdateTaskRequest,
-): Promise<StudyTask> {
-  const response = await fetch(`${env.apiUrl}/study-tasks/${taskId}`, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(task),
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to update study task");
-  }
-
-  return response.json();
-}
-
-async function updateTaskStatus(
-  token: string,
-  taskId: string,
-  isCompleted: boolean,
-): Promise<void> {
-  const response = await fetch(`${env.apiUrl}/study-tasks/${taskId}/status`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ is_completed: isCompleted }),
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to update task status");
-  }
-}
-
-async function deleteStudyTask(token: string, taskId: string): Promise<void> {
-  const response = await fetch(`${env.apiUrl}/study-tasks/${taskId}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to delete study task");
-  }
-}
-
 function StudyPlansPage() {
-  const { getToken } = useAuth();
-  const queryClient = useQueryClient();
+  // State for UI controls
   const [selectedPlan, setSelectedPlan] = useState<StudyPlan | null>(null);
   const [isCreatePlanDialogOpen, setIsCreatePlanDialogOpen] = useState(false);
   const [isCreateTaskDialogOpen, setIsCreateTaskDialogOpen] = useState(false);
   const [isEditTaskDialogOpen, setIsEditTaskDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<StudyTask | null>(null);
 
-  // Fetch study plans
+  // Custom hooks for business logic
+  const studyPlansHook = useStudyPlans();
+  const studyTasksHook = useStudyTasks(selectedPlan?.id);
+
+  // Destructure from hooks for cleaner code
   const {
-    data: studyPlans = [],
+    studyPlans,
     isLoading: isLoadingPlans,
     error: plansError,
-  } = useQuery({
-    queryKey: ["study-plans"],
-    queryFn: async () => {
-      const token = await getToken();
-      if (!token) throw new Error("No authentication token");
-      return fetchStudyPlans(token);
-    },
-  });
+    createPlan,
+    isCreating: isCreatingPlan,
+    formatDate: formatPlanDate,
+    getDaysUntilExam,
+    isPlanActive,
+  } = studyPlansHook;
 
-  // Fetch tasks for selected plan
-  const { data: tasks = [], isLoading: isLoadingTasks } = useQuery({
-    queryKey: ["study-plan-tasks", selectedPlan?.id],
-    queryFn: async () => {
-      if (!selectedPlan) return [];
-      const token = await getToken();
-      if (!token) throw new Error("No authentication token");
-      return fetchStudyPlanTasks(token, selectedPlan.id);
-    },
-    enabled: !!selectedPlan,
-  });
+  const {
+    tasks,
+    isLoading: isLoadingTasks,
+    createTask,
+    updateTask,
+    updateTaskStatus,
+    deleteTask,
+    isCreating: isCreatingTask,
+    isUpdating: isUpdatingTask,
+    isUpdatingStatus: isUpdatingTaskStatus,
+    isDeleting: isDeletingTask,
+    formatDate: formatTaskDate,
+    getPriorityColor,
+    getPriorityLabel,
+    getCompletedTasksCount,
+    getTotalTasksCount,
+    getProgressPercentage,
+  } = studyTasksHook;
 
-  // Create study plan mutation
-  const createPlanMutation = useMutation({
-    mutationFn: async (plan: CreateStudyPlanRequest) => {
-      const token = await getToken();
-      if (!token) throw new Error("No authentication token");
-      return createStudyPlan(token, plan);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["study-plans"] });
-      setIsCreatePlanDialogOpen(false);
-    },
-  });
-
-  // Create task mutation
-  const createTaskMutation = useMutation({
-    mutationFn: async (task: CreateTaskRequest) => {
-      const token = await getToken();
-      if (!token) throw new Error("No authentication token");
-      return createStudyTask(token, task);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["study-plan-tasks", selectedPlan?.id],
-      });
-      setIsCreateTaskDialogOpen(false);
-    },
-  });
-
-  // Update task mutation
-  const updateTaskMutation = useMutation({
-    mutationFn: async ({
-      taskId,
-      task,
-    }: {
-      taskId: string;
-      task: UpdateTaskRequest;
-    }) => {
-      const token = await getToken();
-      if (!token) throw new Error("No authentication token");
-      return updateStudyTask(token, taskId, task);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["study-plan-tasks", selectedPlan?.id],
-      });
-      setIsEditTaskDialogOpen(false);
-      setEditingTask(null);
-    },
-  });
-
-  // Update task status mutation
-  const updateStatusMutation = useMutation({
-    mutationFn: async ({
-      taskId,
-      isCompleted,
-    }: {
-      taskId: string;
-      isCompleted: boolean;
-    }) => {
-      const token = await getToken();
-      if (!token) throw new Error("No authentication token");
-      return updateTaskStatus(token, taskId, isCompleted);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["study-plan-tasks", selectedPlan?.id],
-      });
-    },
-  });
-
-  // Delete task mutation
-  const deleteTaskMutation = useMutation({
-    mutationFn: async (taskId: string) => {
-      const token = await getToken();
-      if (!token) throw new Error("No authentication token");
-      return deleteStudyTask(token, taskId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["study-plan-tasks", selectedPlan?.id],
-      });
-    },
-  });
-
+  // Event handlers
   const handleCreatePlan = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -355,7 +109,11 @@ function StudyPlansPage() {
       end_date: formData.get("end_date") as string,
     };
 
-    createPlanMutation.mutate(plan);
+    createPlan(plan, {
+      onSuccess: () => {
+        setIsCreatePlanDialogOpen(false);
+      },
+    });
   };
 
   const handleCreateTask = (e: React.FormEvent<HTMLFormElement>) => {
@@ -374,7 +132,11 @@ function StudyPlansPage() {
       notes: (formData.get("notes") as string) || undefined,
     };
 
-    createTaskMutation.mutate(task);
+    createTask(task, {
+      onSuccess: () => {
+        setIsCreateTaskDialogOpen(false);
+      },
+    });
   };
 
   const handleEditTask = (e: React.FormEvent<HTMLFormElement>) => {
@@ -393,11 +155,19 @@ function StudyPlansPage() {
       notes: (formData.get("notes") as string) || undefined,
     };
 
-    updateTaskMutation.mutate({ taskId: editingTask.id, task });
+    updateTask(
+      { taskId: editingTask.id, task },
+      {
+        onSuccess: () => {
+          setIsEditTaskDialogOpen(false);
+          setEditingTask(null);
+        },
+      },
+    );
   };
 
   const handleToggleComplete = (taskId: string, currentStatus: boolean) => {
-    updateStatusMutation.mutate({
+    updateTaskStatus({
       taskId,
       isCompleted: !currentStatus,
     });
@@ -405,52 +175,11 @@ function StudyPlansPage() {
 
   const handleDeleteTask = (taskId: string) => {
     if (confirm("Are you sure you want to delete this task?")) {
-      deleteTaskMutation.mutate(taskId);
+      deleteTask(taskId);
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const getPriorityColor = (priority?: number) => {
-    switch (priority) {
-      case 1:
-        return "text-red-600 bg-red-50";
-      case 2:
-        return "text-yellow-600 bg-yellow-50";
-      case 3:
-        return "text-green-600 bg-green-50";
-      default:
-        return "text-gray-600 bg-gray-50";
-    }
-  };
-
-  const getPriorityLabel = (priority?: number) => {
-    switch (priority) {
-      case 1:
-        return "High";
-      case 2:
-        return "Medium";
-      case 3:
-        return "Low";
-      default:
-        return "None";
-    }
-  };
-
-  const getCompletedTasksCount = () => {
-    return tasks.filter((task) => task.is_completed).length;
-  };
-
-  const getTotalTasksCount = () => {
-    return tasks.length;
-  };
-
+  // Loading state
   if (isLoadingPlans) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -459,6 +188,7 @@ function StudyPlansPage() {
     );
   }
 
+  // Error state
   if (plansError) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -498,7 +228,7 @@ function StudyPlansPage() {
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleCreatePlan} className="space-y-4">
-              <div>
+              <div className="space-y-1">
                 <Label htmlFor="title">Title</Label>
                 <Input
                   id="title"
@@ -507,7 +237,7 @@ function StudyPlansPage() {
                   required
                 />
               </div>
-              <div>
+              <div className="space-y-1">
                 <Label htmlFor="subject">Subject</Label>
                 <Input
                   id="subject"
@@ -516,7 +246,7 @@ function StudyPlansPage() {
                   required
                 />
               </div>
-              <div>
+              <div className="space-y-1">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
@@ -526,22 +256,23 @@ function StudyPlansPage() {
                 />
               </div>
               <div className="grid grid-cols-3 gap-4">
-                <div>
+                <div className="space-y-1">
                   <Label htmlFor="start_date">Start Date</Label>
-                  <Input
-                    id="start_date"
-                    name="start_date"
-                    type="date"
-                    required
-                  />
+                  <div className="max-w-[100px]">
+                    <DatePicker />
+                  </div>
                 </div>
-                <div>
+                <div className="space-y-1">
                   <Label htmlFor="end_date">End Date</Label>
-                  <Input id="end_date" name="end_date" type="date" required />
+                  <div className="max-w-[100px]">
+                    <DatePicker />
+                  </div>
                 </div>
-                <div>
+                <div className="space-y-1">
                   <Label htmlFor="exam_date">Exam Date</Label>
-                  <Input id="exam_date" name="exam_date" type="date" required />
+                  <div className="max-w-[100px]">
+                    <DatePicker />
+                  </div>
                 </div>
               </div>
               <div className="flex justify-end space-x-2">
@@ -552,8 +283,8 @@ function StudyPlansPage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={createPlanMutation.isPending}>
-                  {createPlanMutation.isPending ? "Creating..." : "Create Plan"}
+                <Button type="submit" disabled={isCreatingPlan}>
+                  {isCreatingPlan ? "Creating..." : "Create Plan"}
                 </Button>
               </div>
             </form>
@@ -565,7 +296,7 @@ function StudyPlansPage() {
         {/* Study Plans List */}
         <div className="lg:col-span-1 space-y-4">
           <h2 className="text-xl font-semibold">Your Study Plans</h2>
-          {studyPlans.length === 0 ? (
+          {studyPlans?.length === 0 ? (
             <Card>
               <CardHeader>
                 <CardTitle>No Study Plans</CardTitle>
@@ -576,7 +307,7 @@ function StudyPlansPage() {
             </Card>
           ) : (
             <div className="space-y-3">
-              {studyPlans.map((plan) => (
+              {studyPlans?.map((plan) => (
                 <Card
                   key={plan.id}
                   className={`cursor-pointer transition-colors ${
@@ -594,12 +325,20 @@ function StudyPlansPage() {
                           {plan.subject}
                         </CardDescription>
                       </div>
-                      <BookOpen className="h-4 w-4 text-muted-foreground" />
+                      <div className="flex items-center space-x-1">
+                        <BookOpen className="h-4 w-4 text-muted-foreground" />
+                        {isPlanActive(plan) && (
+                          <div className="h-2 w-2 bg-green-500 rounded-full" />
+                        )}
+                      </div>
                     </div>
                     <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                       <div className="flex items-center">
-                        <Calendar className="mr-1 h-3 w-3" />
-                        {formatDate(plan.exam_date)}
+                        <CalendarIcon className="mr-1 h-3 w-3" />
+                        {formatPlanDate(plan.exam_date)}
+                      </div>
+                      <div className="text-xs">
+                        {getDaysUntilExam(plan.exam_date)} days
                       </div>
                     </div>
                   </CardHeader>
@@ -624,12 +363,12 @@ function StudyPlansPage() {
                     <div className="text-right text-sm text-muted-foreground">
                       <div className="flex items-center mb-1">
                         <Target className="mr-1 h-3 w-3" />
-                        Exam: {formatDate(selectedPlan.exam_date)}
+                        Exam: {formatPlanDate(selectedPlan.exam_date)}
                       </div>
                       <div className="flex items-center">
                         <Clock className="mr-1 h-3 w-3" />
-                        {formatDate(selectedPlan.start_date)} -{" "}
-                        {formatDate(selectedPlan.end_date)}
+                        {formatPlanDate(selectedPlan.start_date)} -{" "}
+                        {formatPlanDate(selectedPlan.end_date)}
                       </div>
                     </div>
                   </div>
@@ -649,10 +388,7 @@ function StudyPlansPage() {
                       <div
                         className="bg-primary h-2 rounded-full transition-all"
                         style={{
-                          width:
-                            getTotalTasksCount() > 0
-                              ? `${(getCompletedTasksCount() / getTotalTasksCount()) * 100}%`
-                              : "0%",
+                          width: `${getProgressPercentage()}%`,
                         }}
                       ></div>
                     </div>
@@ -730,13 +466,8 @@ function StudyPlansPage() {
                           >
                             Cancel
                           </Button>
-                          <Button
-                            type="submit"
-                            disabled={createTaskMutation.isPending}
-                          >
-                            {createTaskMutation.isPending
-                              ? "Creating..."
-                              : "Create Task"}
+                          <Button type="submit" disabled={isCreatingTask}>
+                            {isCreatingTask ? "Creating..." : "Create Task"}
                           </Button>
                         </div>
                       </form>
@@ -772,7 +503,7 @@ function StudyPlansPage() {
                                   )
                                 }
                                 className="mt-1"
-                                disabled={updateStatusMutation.isPending}
+                                disabled={isUpdatingTaskStatus}
                               >
                                 {task.is_completed ? (
                                   <CheckCircle className="h-5 w-5 text-green-600" />
@@ -792,8 +523,8 @@ function StudyPlansPage() {
                                 </CardTitle>
                                 <div className="flex items-center space-x-4 text-xs text-muted-foreground mt-1">
                                   <div className="flex items-center">
-                                    <Calendar className="mr-1 h-3 w-3" />
-                                    {formatDate(task.due_date)}
+                                    <CalendarIcon className="mr-1 h-3 w-3" />
+                                    {formatTaskDate(task.due_date)}
                                   </div>
                                   {task.priority && (
                                     <span
@@ -822,7 +553,7 @@ function StudyPlansPage() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleDeleteTask(task.id)}
-                                disabled={deleteTaskMutation.isPending}
+                                disabled={isDeletingTask}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -923,8 +654,8 @@ function StudyPlansPage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={updateTaskMutation.isPending}>
-                  {updateTaskMutation.isPending ? "Updating..." : "Update Task"}
+                <Button type="submit" disabled={isUpdatingTask}>
+                  {isUpdatingTask ? "Updating..." : "Update Task"}
                 </Button>
               </div>
             </form>
