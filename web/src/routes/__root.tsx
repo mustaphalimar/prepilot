@@ -44,8 +44,8 @@ function AuthWrapper() {
     queryFn: async () => {
       const token = await getToken();
       if (!token) throw new Error("No authentication token");
-      
-      const response = await fetch("http://localhost:8080/v1/user/initialize", {
+
+      const response = await fetch(`${env.apiUrl}/v1/user/initialize`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
