@@ -13,13 +13,6 @@ func (app *Application) RegisterRoutes(r chi.Router) {
 		// Webhook routes (before auth to avoid middleware)
 		r.Post("/webhooks/clerk", app.ClerkWebhookHandler)
 
-		// Debug routes for checking user sync
-		r.Get("/debug/users", app.DebugListUsersHandler)
-		r.Get("/debug/user/{clerkId}", app.DebugGetUserHandler)
-		r.Get("/debug/db", app.DebugDatabaseConnectionHandler)
-		r.Get("/debug/webhook-config", app.DebugClerkWebhookConfigHandler)
-		r.Post("/debug/webhook-test", app.DebugWebhookTestHandler)
-
 		// Auth routes
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/register", app.RegisterHandler)
@@ -28,14 +21,36 @@ func (app *Application) RegisterRoutes(r chi.Router) {
 
 		// Protected routes
 		r.Group(func(r chi.Router) {
-			// Add authentication middleware here when implemented
-			// r.Use(a.AuthMiddleware)
+			// Add authentication middleware
+			r.Use(app.AuthMiddleware)
 
-			// Example future routes
-			// r.Route("/flashcards", func(r chi.Router) {
-			//     r.Post("/", a.CreateFlashcardHandler)
-			//     r.Get("/", a.ListFlashcardsHandler)
-			// })
+			// Study plans routes
+			r.Route("/study-plans", func(r chi.Router) {
+				r.Post("/", app.WithAuth(app.createStudyPlanHandler))
+				r.Get("/", app.WithAuth(app.GetStudyPlansHandler))
+				r.Route("/{id}", func(r chi.Router) {
+					r.Get("/", app.WithAuth(app.GetStudyPlanHandler))
+					r.Get("/tasks", app.WithAuth(app.GetStudyPlanTasksHandler))
+				})
+			})
+
+			// User routes
+			r.Route("/user", func(r chi.Router) {
+				r.Post("/initialize", app.WithAuth(app.InitializeUserHandler))
+				r.Get("/profile", app.WithAuth(app.GetUserProfileHandler))
+			})
+
+			// Study tasks routes
+			r.Route("/study-tasks", func(r chi.Router) {
+				r.Post("/", app.WithAuth(app.CreateStudyTaskHandler))
+				r.Get("/", app.WithAuth(app.GetStudyTasksHandler))
+				r.Route("/{id}", func(r chi.Router) {
+					r.Get("/", app.WithAuth(app.GetStudyTaskHandler))
+					r.Put("/", app.WithAuth(app.UpdateStudyTaskHandler))
+					r.Delete("/", app.WithAuth(app.DeleteStudyTaskHandler))
+					r.Patch("/status", app.WithAuth(app.UpdateStudyTaskStatusHandler))
+				})
+			})
 		})
 	})
 }
