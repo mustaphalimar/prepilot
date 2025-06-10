@@ -2,16 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/clerk-react";
 import { useState } from "react";
-import { 
-  Plus, 
-  Calendar, 
-  CheckCircle, 
-  Circle, 
-  Trash2, 
-  Edit3, 
+import {
+  Plus,
+  Calendar,
+  CheckCircle,
+  Circle,
+  Trash2,
+  Edit3,
   BookOpen,
   Target,
-  Clock
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,7 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { env } from "@/lib/env";
 export const Route = createFileRoute("/study-plans")({
   component: StudyPlansPage,
 });
@@ -96,11 +96,8 @@ interface UpdateTaskRequest {
   notes?: string;
 }
 
-// API functions
-const API_BASE_URL = "http://localhost:8080/v1";
-
 async function fetchStudyPlans(token: string): Promise<StudyPlan[]> {
-  const response = await fetch(`${API_BASE_URL}/study-plans`, {
+  const response = await fetch(`${env.apiUrl}/v1/study-plans`, {
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
@@ -116,9 +113,9 @@ async function fetchStudyPlans(token: string): Promise<StudyPlan[]> {
 
 async function createStudyPlan(
   token: string,
-  plan: CreateStudyPlanRequest
+  plan: CreateStudyPlanRequest,
 ): Promise<StudyPlan> {
-  const response = await fetch(`${API_BASE_URL}/study-plans`, {
+  const response = await fetch(`${env.apiUrl}/study-plans`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -134,8 +131,11 @@ async function createStudyPlan(
   return response.json();
 }
 
-async function fetchStudyPlanTasks(token: string, planId: string): Promise<StudyTask[]> {
-  const response = await fetch(`${API_BASE_URL}/study-plans/${planId}/tasks`, {
+async function fetchStudyPlanTasks(
+  token: string,
+  planId: string,
+): Promise<StudyTask[]> {
+  const response = await fetch(`${env.apiUrl}/study-plans/${planId}/tasks`, {
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
@@ -151,9 +151,9 @@ async function fetchStudyPlanTasks(token: string, planId: string): Promise<Study
 
 async function createStudyTask(
   token: string,
-  task: CreateTaskRequest
+  task: CreateTaskRequest,
 ): Promise<StudyTask> {
-  const response = await fetch(`${API_BASE_URL}/study-tasks`, {
+  const response = await fetch(`${env.apiUrl}/study-tasks`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -172,9 +172,9 @@ async function createStudyTask(
 async function updateStudyTask(
   token: string,
   taskId: string,
-  task: UpdateTaskRequest
+  task: UpdateTaskRequest,
 ): Promise<StudyTask> {
-  const response = await fetch(`${API_BASE_URL}/study-tasks/${taskId}`, {
+  const response = await fetch(`${env.apiUrl}/study-tasks/${taskId}`, {
     method: "PUT",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -193,9 +193,9 @@ async function updateStudyTask(
 async function updateTaskStatus(
   token: string,
   taskId: string,
-  isCompleted: boolean
+  isCompleted: boolean,
 ): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/study-tasks/${taskId}/status`, {
+  const response = await fetch(`${env.apiUrl}/study-tasks/${taskId}/status`, {
     method: "PATCH",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -210,7 +210,7 @@ async function updateTaskStatus(
 }
 
 async function deleteStudyTask(token: string, taskId: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/study-tasks/${taskId}`, {
+  const response = await fetch(`${env.apiUrl}/study-tasks/${taskId}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -247,10 +247,7 @@ function StudyPlansPage() {
   });
 
   // Fetch tasks for selected plan
-  const {
-    data: tasks = [],
-    isLoading: isLoadingTasks,
-  } = useQuery({
+  const { data: tasks = [], isLoading: isLoadingTasks } = useQuery({
     queryKey: ["study-plan-tasks", selectedPlan?.id],
     queryFn: async () => {
       if (!selectedPlan) return [];
@@ -282,7 +279,9 @@ function StudyPlansPage() {
       return createStudyTask(token, task);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["study-plan-tasks", selectedPlan?.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["study-plan-tasks", selectedPlan?.id],
+      });
       setIsCreateTaskDialogOpen(false);
     },
   });
@@ -301,7 +300,9 @@ function StudyPlansPage() {
       return updateStudyTask(token, taskId, task);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["study-plan-tasks", selectedPlan?.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["study-plan-tasks", selectedPlan?.id],
+      });
       setIsEditTaskDialogOpen(false);
       setEditingTask(null);
     },
@@ -321,7 +322,9 @@ function StudyPlansPage() {
       return updateTaskStatus(token, taskId, isCompleted);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["study-plan-tasks", selectedPlan?.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["study-plan-tasks", selectedPlan?.id],
+      });
     },
   });
 
@@ -333,18 +336,20 @@ function StudyPlansPage() {
       return deleteStudyTask(token, taskId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["study-plan-tasks", selectedPlan?.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["study-plan-tasks", selectedPlan?.id],
+      });
     },
   });
 
   const handleCreatePlan = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    
+
     const plan: CreateStudyPlanRequest = {
       title: formData.get("title") as string,
       subject: formData.get("subject") as string,
-      description: formData.get("description") as string || undefined,
+      description: (formData.get("description") as string) || undefined,
       exam_date: formData.get("exam_date") as string,
       start_date: formData.get("start_date") as string,
       end_date: formData.get("end_date") as string,
@@ -356,15 +361,17 @@ function StudyPlansPage() {
   const handleCreateTask = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!selectedPlan) return;
-    
+
     const formData = new FormData(e.currentTarget);
-    
+
     const task: CreateTaskRequest = {
       plan_id: selectedPlan.id,
       title: formData.get("title") as string,
       due_date: formData.get("due_date") as string,
-      priority: formData.get("priority") ? Number(formData.get("priority")) : undefined,
-      notes: formData.get("notes") as string || undefined,
+      priority: formData.get("priority")
+        ? Number(formData.get("priority"))
+        : undefined,
+      notes: (formData.get("notes") as string) || undefined,
     };
 
     createTaskMutation.mutate(task);
@@ -375,13 +382,15 @@ function StudyPlansPage() {
     if (!editingTask) return;
 
     const formData = new FormData(e.currentTarget);
-    
+
     const task: UpdateTaskRequest = {
       title: formData.get("title") as string,
       due_date: formData.get("due_date") as string,
       is_completed: editingTask.is_completed,
-      priority: formData.get("priority") ? Number(formData.get("priority")) : undefined,
-      notes: formData.get("notes") as string || undefined,
+      priority: formData.get("priority")
+        ? Number(formData.get("priority"))
+        : undefined,
+      notes: (formData.get("notes") as string) || undefined,
     };
 
     updateTaskMutation.mutate({ taskId: editingTask.id, task });
@@ -435,7 +444,7 @@ function StudyPlansPage() {
   };
 
   const getCompletedTasksCount = () => {
-    return tasks.filter(task => task.is_completed).length;
+    return tasks.filter((task) => task.is_completed).length;
   };
 
   const getTotalTasksCount = () => {
@@ -471,7 +480,10 @@ function StudyPlansPage() {
           </p>
         </div>
 
-        <Dialog open={isCreatePlanDialogOpen} onOpenChange={setIsCreatePlanDialogOpen}>
+        <Dialog
+          open={isCreatePlanDialogOpen}
+          onOpenChange={setIsCreatePlanDialogOpen}
+        >
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
@@ -525,21 +537,11 @@ function StudyPlansPage() {
                 </div>
                 <div>
                   <Label htmlFor="end_date">End Date</Label>
-                  <Input
-                    id="end_date"
-                    name="end_date"
-                    type="date"
-                    required
-                  />
+                  <Input id="end_date" name="end_date" type="date" required />
                 </div>
                 <div>
                   <Label htmlFor="exam_date">Exam Date</Label>
-                  <Input
-                    id="exam_date"
-                    name="exam_date"
-                    type="date"
-                    required
-                  />
+                  <Input id="exam_date" name="exam_date" type="date" required />
                 </div>
               </div>
               <div className="flex justify-end space-x-2">
@@ -550,10 +552,7 @@ function StudyPlansPage() {
                 >
                   Cancel
                 </Button>
-                <Button
-                  type="submit"
-                  disabled={createPlanMutation.isPending}
-                >
+                <Button type="submit" disabled={createPlanMutation.isPending}>
                   {createPlanMutation.isPending ? "Creating..." : "Create Plan"}
                 </Button>
               </div>
@@ -581,8 +580,8 @@ function StudyPlansPage() {
                 <Card
                   key={plan.id}
                   className={`cursor-pointer transition-colors ${
-                    selectedPlan?.id === plan.id 
-                      ? "border-primary bg-primary/5" 
+                    selectedPlan?.id === plan.id
+                      ? "border-primary bg-primary/5"
                       : "hover:bg-gray-50"
                   }`}
                   onClick={() => setSelectedPlan(plan)}
@@ -629,7 +628,8 @@ function StudyPlansPage() {
                       </div>
                       <div className="flex items-center">
                         <Clock className="mr-1 h-3 w-3" />
-                        {formatDate(selectedPlan.start_date)} - {formatDate(selectedPlan.end_date)}
+                        {formatDate(selectedPlan.start_date)} -{" "}
+                        {formatDate(selectedPlan.end_date)}
                       </div>
                     </div>
                   </div>
@@ -642,15 +642,17 @@ function StudyPlansPage() {
                 <CardContent>
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-muted-foreground">
-                      Progress: {getCompletedTasksCount()} of {getTotalTasksCount()} tasks completed
+                      Progress: {getCompletedTasksCount()} of{" "}
+                      {getTotalTasksCount()} tasks completed
                     </div>
                     <div className="w-24 bg-gray-200 rounded-full h-2">
                       <div
                         className="bg-primary h-2 rounded-full transition-all"
                         style={{
-                          width: getTotalTasksCount() > 0 
-                            ? `${(getCompletedTasksCount() / getTotalTasksCount()) * 100}%` 
-                            : '0%'
+                          width:
+                            getTotalTasksCount() > 0
+                              ? `${(getCompletedTasksCount() / getTotalTasksCount()) * 100}%`
+                              : "0%",
                         }}
                       ></div>
                     </div>
@@ -662,7 +664,10 @@ function StudyPlansPage() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <h3 className="text-lg font-semibold">Study Tasks</h3>
-                  <Dialog open={isCreateTaskDialogOpen} onOpenChange={setIsCreateTaskDialogOpen}>
+                  <Dialog
+                    open={isCreateTaskDialogOpen}
+                    onOpenChange={setIsCreateTaskDialogOpen}
+                  >
                     <DialogTrigger asChild>
                       <Button size="sm">
                         <Plus className="mr-2 h-4 w-4" />
@@ -729,7 +734,9 @@ function StudyPlansPage() {
                             type="submit"
                             disabled={createTaskMutation.isPending}
                           >
-                            {createTaskMutation.isPending ? "Creating..." : "Create Task"}
+                            {createTaskMutation.isPending
+                              ? "Creating..."
+                              : "Create Task"}
                           </Button>
                         </div>
                       </form>
@@ -758,7 +765,12 @@ function StudyPlansPage() {
                           <div className="flex items-start justify-between">
                             <div className="flex items-start space-x-3">
                               <button
-                                onClick={() => handleToggleComplete(task.id, task.is_completed)}
+                                onClick={() =>
+                                  handleToggleComplete(
+                                    task.id,
+                                    task.is_completed,
+                                  )
+                                }
                                 className="mt-1"
                                 disabled={updateStatusMutation.isPending}
                               >
@@ -771,7 +783,9 @@ function StudyPlansPage() {
                               <div>
                                 <CardTitle
                                   className={`text-sm ${
-                                    task.is_completed ? "line-through text-gray-500" : ""
+                                    task.is_completed
+                                      ? "line-through text-gray-500"
+                                      : ""
                                   }`}
                                 >
                                   {task.title}
@@ -784,7 +798,7 @@ function StudyPlansPage() {
                                   {task.priority && (
                                     <span
                                       className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(
-                                        task.priority
+                                        task.priority,
                                       )}`}
                                     >
                                       {getPriorityLabel(task.priority)}
@@ -817,7 +831,9 @@ function StudyPlansPage() {
                         </CardHeader>
                         {task.notes && (
                           <CardContent>
-                            <p className="text-xs text-muted-foreground">{task.notes}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {task.notes}
+                            </p>
                           </CardContent>
                         )}
                       </Card>
@@ -831,7 +847,8 @@ function StudyPlansPage() {
               <CardHeader>
                 <CardTitle>Select a Study Plan</CardTitle>
                 <CardDescription>
-                  Choose a study plan from the left to view its details and tasks
+                  Choose a study plan from the left to view its details and
+                  tasks
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -840,13 +857,14 @@ function StudyPlansPage() {
       </div>
 
       {/* Edit Task Dialog */}
-      <Dialog open={isEditTaskDialogOpen} onOpenChange={setIsEditTaskDialogOpen}>
+      <Dialog
+        open={isEditTaskDialogOpen}
+        onOpenChange={setIsEditTaskDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Task</DialogTitle>
-            <DialogDescription>
-              Update your task details
-            </DialogDescription>
+            <DialogDescription>Update your task details</DialogDescription>
           </DialogHeader>
           {editingTask && (
             <form onSubmit={handleEditTask} className="space-y-4">
@@ -871,7 +889,10 @@ function StudyPlansPage() {
               </div>
               <div>
                 <Label htmlFor="edit-task-priority">Priority</Label>
-                <Select name="priority" defaultValue={editingTask.priority?.toString()}>
+                <Select
+                  name="priority"
+                  defaultValue={editingTask.priority?.toString()}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select priority" />
                   </SelectTrigger>
@@ -902,10 +923,7 @@ function StudyPlansPage() {
                 >
                   Cancel
                 </Button>
-                <Button
-                  type="submit"
-                  disabled={updateTaskMutation.isPending}
-                >
+                <Button type="submit" disabled={updateTaskMutation.isPending}>
                   {updateTaskMutation.isPending ? "Updating..." : "Update Task"}
                 </Button>
               </div>
