@@ -33,7 +33,7 @@ export function NavMain({
               className="border-2 border-primary   hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
             >
               <IconCirclePlusFilled />
-              <span className="text-base">Quick Create</span>
+              <span>Quick Create</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -45,7 +45,7 @@ export function NavMain({
                 <SidebarMenuItem className="cursor-pointer">
                   <SidebarMenuButton
                     tooltip={item.title}
-                    className={cn("text-base ", {
+                    className={cn("", {
                       "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground":
                         isActive,
                       "text-black": !isActive,

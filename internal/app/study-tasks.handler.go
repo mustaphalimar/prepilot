@@ -200,7 +200,9 @@ func (app *Application) GetStudyTasksHandler(w http.ResponseWriter, r *http.Requ
 		response = []StudyTaskResponse{}
 	}
 
-	app.writeJSON(w, http.StatusOK, response)
+	if err := app.jsonResponse(w, http.StatusOK, response); err != nil {
+		app.internalServerError(w, r, err)
+	}
 }
 
 // GetStudyTaskHandler retrieves a specific study task by ID

@@ -23,7 +23,7 @@ type CreateStudyPlanParams struct {
 	UserID      string         `json:"user_id"`
 	Title       string         `json:"title"`
 	Subject     string         `json:"subject"`
-	Description sql.NullString `json:"description"`
+	Description string `json:"description"`
 	ExamDate    time.Time      `json:"exam_date"`
 	StartDate   time.Time      `json:"start_date"`
 	EndDate     time.Time      `json:"end_date"`
