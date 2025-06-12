@@ -4,14 +4,7 @@ import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import {
-  SignIn,
-  SignInButton,
-  SignUp,
-  SignUpButton,
-  useAuth,
-} from "@clerk/nextjs";
-import Link from "next/link";
+import { SignInButton, SignUpButton, useAuth } from "@clerk/nextjs";
 
 // Public routes that don't require authentication
 
