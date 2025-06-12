@@ -18,7 +18,7 @@ function Index() {
 
   const navigate = useNavigate();
   if (isSignedIn) {
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/study-plans" });
   }
   return (
     <div className="flex flex-col items-center justify-center min-h-screen space-y-6">
