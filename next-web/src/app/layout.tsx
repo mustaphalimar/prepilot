@@ -35,6 +35,7 @@ export default function RootLayout({
       </html>
     );
   }
+
   return (
     <ClerkProvider>
       <html lang="en">
