@@ -22,6 +22,7 @@ import { Route as PracticeTestsImport } from './routes/practice-tests'
 import { Route as HelpImport } from './routes/help'
 import { Route as GoalsImport } from './routes/goals'
 import { Route as FlashcardsImport } from './routes/flashcards'
+import { Route as ExamsImport } from './routes/exams'
 import { Route as ExamNotesImport } from './routes/exam-notes'
 import { Route as DashboardImport } from './routes/dashboard'
 import { Route as AuthImport } from './routes/auth'
@@ -94,6 +95,12 @@ const GoalsRoute = GoalsImport.update({
 const FlashcardsRoute = FlashcardsImport.update({
   id: '/flashcards',
   path: '/flashcards',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ExamsRoute = ExamsImport.update({
+  id: '/exams',
+  path: '/exams',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -177,6 +184,13 @@ declare module '@tanstack/react-router' {
       path: '/exam-notes'
       fullPath: '/exam-notes'
       preLoaderRoute: typeof ExamNotesImport
+      parentRoute: typeof rootRoute
+    }
+    '/exams': {
+      id: '/exams'
+      path: '/exams'
+      fullPath: '/exams'
+      preLoaderRoute: typeof ExamsImport
       parentRoute: typeof rootRoute
     }
     '/flashcards': {
@@ -268,6 +282,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/exam-notes': typeof ExamNotesRoute
+  '/exams': typeof ExamsRoute
   '/flashcards': typeof FlashcardsRoute
   '/goals': typeof GoalsRoute
   '/help': typeof HelpRoute
@@ -288,6 +303,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/exam-notes': typeof ExamNotesRoute
+  '/exams': typeof ExamsRoute
   '/flashcards': typeof FlashcardsRoute
   '/goals': typeof GoalsRoute
   '/help': typeof HelpRoute
@@ -309,6 +325,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/exam-notes': typeof ExamNotesRoute
+  '/exams': typeof ExamsRoute
   '/flashcards': typeof FlashcardsRoute
   '/goals': typeof GoalsRoute
   '/help': typeof HelpRoute
@@ -331,6 +348,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/exam-notes'
+    | '/exams'
     | '/flashcards'
     | '/goals'
     | '/help'
@@ -350,6 +368,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/exam-notes'
+    | '/exams'
     | '/flashcards'
     | '/goals'
     | '/help'
@@ -369,6 +388,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/exam-notes'
+    | '/exams'
     | '/flashcards'
     | '/goals'
     | '/help'
@@ -390,6 +410,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
   ExamNotesRoute: typeof ExamNotesRoute
+  ExamsRoute: typeof ExamsRoute
   FlashcardsRoute: typeof FlashcardsRoute
   GoalsRoute: typeof GoalsRoute
   HelpRoute: typeof HelpRoute
@@ -410,6 +431,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
   ExamNotesRoute: ExamNotesRoute,
+  ExamsRoute: ExamsRoute,
   FlashcardsRoute: FlashcardsRoute,
   GoalsRoute: GoalsRoute,
   HelpRoute: HelpRoute,
@@ -439,6 +461,7 @@ export const routeTree = rootRoute
         "/auth",
         "/dashboard",
         "/exam-notes",
+        "/exams",
         "/flashcards",
         "/goals",
         "/help",
@@ -469,6 +492,9 @@ export const routeTree = rootRoute
     },
     "/exam-notes": {
       "filePath": "exam-notes.tsx"
+    },
+    "/exams": {
+      "filePath": "exams.tsx"
     },
     "/flashcards": {
       "filePath": "flashcards.tsx"

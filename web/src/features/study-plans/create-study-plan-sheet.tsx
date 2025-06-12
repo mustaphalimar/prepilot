@@ -127,7 +127,7 @@ export const CreateStudyPlanSheet: React.FC<Props> = ({
               Cancel
             </Button>
             <Button type="submit" disabled={isCreatingPlan}>
-              {isCreatingPlan ? "Creating..." : "Create Plan"}
+              {isCreatingPlan ? "Creating..." : "Create"}
             </Button>
           </div>
         </form>

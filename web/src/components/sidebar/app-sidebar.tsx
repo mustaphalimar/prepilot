@@ -42,14 +42,14 @@ const data = {
   },
   navMain: [
     {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: IconHome,
-    },
-    {
       title: "Study Plans",
       url: "/study-plans",
       icon: IconCalendarEvent,
+    },
+    {
+      title: "Subjects",
+      url: "/subjects",
+      icon: IconBook,
     },
     {
       title: "Practice Tests",
@@ -61,15 +61,38 @@ const data = {
       url: "/flashcards",
       icon: IconBrain,
     },
+    // {
+    //   title: "Exam Notes",
+    //   url: "/exam-notes",
+    //   icon: IconNote,
+    // },
+    // {
+    //   title: "Progress",
+    //   url: "/progress",
+    //   icon: IconProgress,
+    // },
+  ],
+
+  documents: [
     {
-      title: "Progress",
-      url: "/progress",
-      icon: IconProgress,
+      title: "Exams",
+      url: "/exams",
+      icon: IconClipboardCheck,
     },
     {
       title: "Goals",
       url: "/goals",
       icon: IconTarget,
+    },
+    {
+      title: "Study Timer",
+      url: "/study-timer",
+      icon: IconClockHour4,
+    },
+    {
+      title: "Achievements",
+      url: "/achievements",
+      icon: IconTrophy,
     },
   ],
   navSecondary: [
@@ -87,33 +110,6 @@ const data = {
       title: "Profile",
       url: "/profile",
       icon: IconUser,
-    },
-  ],
-  documents: [
-    {
-      name: "Subjects",
-      url: "/subjects",
-      icon: IconBook,
-    },
-    {
-      name: "Exam Notes",
-      url: "/exam-notes",
-      icon: IconNote,
-    },
-    {
-      name: "Test Results",
-      url: "/test-results",
-      icon: IconClipboardCheck,
-    },
-    {
-      name: "Study Timer",
-      url: "/study-timer",
-      icon: IconClockHour4,
-    },
-    {
-      name: "Achievements",
-      url: "/achievements",
-      icon: IconTrophy,
     },
   ],
 };
@@ -137,8 +133,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
+        <NavMain items={data.navMain} groupName="📘 Learning" />
+        <NavDocuments items={data.documents} groupName="📊 Tracking" />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
