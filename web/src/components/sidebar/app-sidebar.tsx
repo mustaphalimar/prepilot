@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
   IconBook,
   IconBrain,
@@ -10,14 +9,12 @@ import {
   IconClockHour4,
   IconFlask,
   IconHelp,
-  IconHome,
-  IconNote,
-  IconProgress,
   IconSettings,
   IconTarget,
   IconTrophy,
   IconUser,
 } from "@tabler/icons-react";
+import * as React from "react";
 
 import { NavDocuments } from "@/components/sidebar/nav-documents";
 import { NavMain } from "@/components/sidebar/nav-main";

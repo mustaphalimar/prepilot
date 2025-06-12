@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
   IconBook,
   IconBrain,
@@ -15,11 +14,11 @@ import {
   IconTrophy,
   IconUser,
 } from "@tabler/icons-react";
+import * as React from "react";
 
-import { NavDocuments } from "@/components/sidebar/nav-tracking";
 import { NavMain } from "@/components/sidebar/nav-learning";
 import { NavSecondary } from "@/components/sidebar/nav-secondary";
-import { NavUser } from "@/components/sidebar/nav-user";
+import { NavDocuments } from "@/components/sidebar/nav-tracking";
 import {
   Sidebar,
   SidebarContent,
