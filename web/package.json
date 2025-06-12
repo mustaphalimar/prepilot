@@ -32,17 +32,20 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.513.0",
+    "nprogress": "^0.2.0",
     "react": "^19.0.0",
     "react-day-picker": "^9.7.0",
     "react-dom": "^19.0.0",
     "recharts": "^2.15.3",
     "tailwind-merge": "^3.3.0",
-    "tailwindcss": "^4.1.8"
+    "tailwindcss": "^4.1.8",
+    "zod": "^3.25.57"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
     "@tanstack/router-plugin": "^1.120.15",
     "@types/node": "^22.15.29",
+    "@types/nprogress": "^0.2.3",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",

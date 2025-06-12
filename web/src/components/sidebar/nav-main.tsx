@@ -5,6 +5,7 @@ import { IconCirclePlusFilled, type Icon } from "@tabler/icons-react";
 import {
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -14,12 +15,14 @@ import { Link, useLocation } from "@tanstack/react-router";
 
 export function NavMain({
   items,
+  groupName,
 }: {
   items: {
     title: string;
     url: string;
     icon?: Icon;
   }[];
+  groupName: string;
 }) {
   const location = useLocation();
 
@@ -30,14 +33,15 @@ export function NavMain({
           <SidebarMenuItem className="flex items-center gap-2">
             <SidebarMenuButton
               tooltip="Quick Create"
-              className="border-2 border-primary   hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
+              className="border border-primary  active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
             >
               <IconCirclePlusFilled />
-              <span className="text-base">Quick Create</span>
+              <span>Quick Create</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
         <SidebarMenu>
+          <SidebarGroupLabel>{groupName}</SidebarGroupLabel>
           {items.map((item) => {
             const isActive = location.pathname === item.url;
             return (
@@ -45,7 +49,7 @@ export function NavMain({
                 <SidebarMenuItem className="cursor-pointer">
                   <SidebarMenuButton
                     tooltip={item.title}
-                    className={cn("text-base ", {
+                    className={cn("", {
                       "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground":
                         isActive,
                       "text-black": !isActive,

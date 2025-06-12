@@ -4,13 +4,14 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-    --background: oklch(0.9818 0.0054 95.0986);
+    --header-height: 2.5rem;
+    --background: oklch(0.997 0 0);
     --foreground: oklch(0.3438 0.0269 95.7226);
-    --card: oklch(0.9818 0.0054 95.0986);
+    --card: oklch(0.9761 0 0);
     --card-foreground: oklch(0.1908 0.002 106.5859);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.2671 0.0196 98.939);
-    --primary: oklch(0.6349 0.1166 170.9522);
+    --primary: oklch(0.6474 0.114789 205.9716);
     --primary-foreground: oklch(1 0 0);
     --secondary: oklch(0.9245 0.0138 92.9892);
     --secondary-foreground: oklch(0.4334 0.0177 98.6048);
@@ -28,19 +29,14 @@
     --chart-3: oklch(0.8816 0.0276 93.128);
     --chart-4: oklch(0.8822 0.0403 298.1792);
     --chart-5: oklch(0.5608 0.1348 42.0584);
-    --sidebar: oklch(0.9663 0.008 98.8792);
+    --sidebar: oklch(0.9851 0 0);
     --sidebar-foreground: oklch(0.359 0.0051 106.6524);
     --sidebar-primary: oklch(0.6171 0.1375 39.0427);
     --sidebar-primary-foreground: oklch(0.9881 0 0);
-    --sidebar-accent: oklch(0.9245 0.0138 92.9892);
+    --sidebar-accent: oklch(0.9219 0 0);
     --sidebar-accent-foreground: oklch(0.325 0 0);
     --sidebar-border: oklch(0.9401 0 0);
     --sidebar-ring: oklch(0.7731 0 0);
-    --font-sans: "Bricolage Grotesque", sans-serif;
-    --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-    --font-mono:
-        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-        "Liberation Mono", "Courier New", monospace;
     --radius: 0.5rem;
     --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
     --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
@@ -55,7 +51,7 @@
     --shadow-xl:
         0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
     --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
-    --tracking-normal: -0.025em;
+    --tracking-normal: 0em;
 }
 
 .dark {
@@ -91,11 +87,6 @@
     --sidebar-accent-foreground: oklch(0.8074 0.0142 93.0137);
     --sidebar-border: oklch(0.9401 0 0);
     --sidebar-ring: oklch(0.7731 0 0);
-    --font-sans: Poppins, sans-serif;
-    --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-    --font-mono:
-        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-        "Liberation Mono", "Courier New", monospace;
     --radius: 0.5rem;
     --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
     --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
@@ -170,6 +161,19 @@
     --tracking-wide: calc(var(--tracking-normal) + 0.025em);
     --tracking-wider: calc(var(--tracking-normal) + 0.05em);
     --tracking-widest: calc(var(--tracking-normal) + 0.1em);
+}
+
+@keyframes spin-fast {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin-fast {
+    animation: spin-fast 0.5s linear infinite;
 }
 
 body {

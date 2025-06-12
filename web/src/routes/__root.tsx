@@ -14,7 +14,7 @@ import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 import { useEffect } from "react";
 import { env, isSafeToShowApp, validateEnvironment } from "@/lib/env";
 import { DemoPage } from "@/components/production/DemoPage";
-
+import { RouteChangeTracker } from "@/components/route-change-tracker";
 
 // Import test utility in development
 if (env.isDevelopment) {
@@ -37,8 +37,6 @@ function AuthWrapper() {
   const location = useLocation();
 
   const isPublicRoute = publicRoutes.includes(location.pathname);
-
-
 
   useEffect(() => {
     if (isLoaded && !isSignedIn && !isPublicRoute) {
@@ -105,6 +103,7 @@ function RootComponent() {
         publishableKey={env.clerkPublishableKey!}
         afterSignOutUrl="/"
       >
+        <RouteChangeTracker />
         <AuthWrapper />
         {env.features.enableRouterDevtools && (
           <TanStackRouterDevtools position="bottom-right" />
