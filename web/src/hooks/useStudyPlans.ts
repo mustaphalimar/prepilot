@@ -1,6 +1,27 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/clerk-react";
 import { env } from "@/lib/env";
+import { z } from "zod";
+
+export const createStudyPlanFormSchema = z
+  .object({
+    title: z.string().min(3).max(100),
+    subject: z.string().min(2).max(50),
+    description: z.string().max(500).optional(),
+    examDate: z.coerce.date(), // handles string to Date
+    startDate: z.coerce.date(),
+    endDate: z.coerce.date(),
+  })
+  .refine((data) => data.startDate <= data.endDate, {
+    message: "Start date must be before or equal to end date",
+    path: ["endDate"],
+  })
+  .refine((data) => data.endDate <= data.examDate, {
+    message: "End date must be before or equal to exam date",
+    path: ["examDate"],
+  });
+
+export type CreateStudyPlanSchema = z.infer<typeof createStudyPlanFormSchema>;
 
 // Types
 export interface StudyPlan {

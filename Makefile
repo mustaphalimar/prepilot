@@ -2,8 +2,7 @@ include .env
 MIGRATIONS_PATH = ./internal/db/migrations
 
 run:
-	@air & \
-	cd web && pnpm dev & \
+	@air
 	wait
 
 .PHONY: migrate-create
