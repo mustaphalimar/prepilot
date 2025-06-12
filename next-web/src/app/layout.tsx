@@ -40,11 +40,11 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body
-          className={`${inter.variable} antialiased font-[family-name:var(--font-inter)]`}
+          className={`${inter.variable} antialiased font-[family-name:var(--font-inter)] selection:bg-primary selection:text-primary-foreground`}
         >
-          <AuthWrapper>
-            <Providers>{children}</Providers>
-          </AuthWrapper>
+          <Providers>
+            <AuthWrapper>{children}</AuthWrapper>
+          </Providers>
         </body>
       </html>
     </ClerkProvider>

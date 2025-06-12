@@ -69,7 +69,7 @@ export function NavMain({
                   <SidebarMenuButton
                     tooltip={item.title}
                     className={cn("", {
-                      "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground":
+                      "bg-primary  text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground":
                         isActive,
                       "text-black": !isActive,
                     })}
