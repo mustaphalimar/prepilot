@@ -22,10 +22,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { CreateStudyPlanDialog } from "@/features/study-plans/create-study-plan-dialog";
 import { CreateStudyPlanSheet } from "@/features/study-plans/create-study-plan-sheet";
 import {
-  CreateTaskRequest,
+  // CreateTaskRequest,
   StudyPlan,
   StudyTask,
   UpdateTaskRequest,
@@ -44,7 +43,7 @@ function StudyPlansPage() {
   // State for UI controls
   const [selectedPlan, setSelectedPlan] = useState<StudyPlan | null>(null);
   const [isCreatePlanDialogOpen, setIsCreatePlanDialogOpen] = useState(false);
-  const [_, setIsCreateTaskDialogOpen] = useState(false);
+  // const [_, setIsCreateTaskDialogOpen] = useState(false);
   const [isEditTaskDialogOpen, setIsEditTaskDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<StudyTask | null>(null);
 
@@ -63,48 +62,37 @@ function StudyPlansPage() {
   } = studyPlansHook;
 
   const {
-    tasks,
-    isLoading: isLoadingTasks,
-    createTask,
+    // createTask,
     updateTask,
-    updateTaskStatus,
-    deleteTask,
-    isCreating: isCreatingTask,
+    // updateTaskStatus,
+    // deleteTask,
     isUpdating: isUpdatingTask,
-    isUpdatingStatus: isUpdatingTaskStatus,
-    isDeleting: isDeletingTask,
-    formatDate: formatTaskDate,
-    getPriorityColor,
-    getPriorityLabel,
-    getCompletedTasksCount,
-    getTotalTasksCount,
-    getProgressPercentage,
   } = studyTasksHook;
 
   // Event handlers
 
-  const handleCreateTask = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!selectedPlan) return;
+  // const handleCreateTask = (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   if (!selectedPlan) return;
 
-    const formData = new FormData(e.currentTarget);
+  //   const formData = new FormData(e.currentTarget);
 
-    const task: CreateTaskRequest = {
-      plan_id: selectedPlan.id,
-      title: formData.get("title") as string,
-      due_date: formData.get("due_date") as string,
-      priority: formData.get("priority")
-        ? Number(formData.get("priority"))
-        : undefined,
-      notes: (formData.get("notes") as string) || undefined,
-    };
+  //   const task: CreateTaskRequest = {
+  //     plan_id: selectedPlan.id,
+  //     title: formData.get("title") as string,
+  //     due_date: formData.get("due_date") as string,
+  //     priority: formData.get("priority")
+  //       ? Number(formData.get("priority"))
+  //       : undefined,
+  //     notes: (formData.get("notes") as string) || undefined,
+  //   };
 
-    createTask(task, {
-      onSuccess: () => {
-        setIsCreateTaskDialogOpen(false);
-      },
-    });
-  };
+  //   createTask(task, {
+  //     onSuccess: () => {
+  //       setIsCreateTaskDialogOpen(false);
+  //     },
+  //   });
+  // };
 
   const handleEditTask = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -133,18 +121,18 @@ function StudyPlansPage() {
     );
   };
 
-  const handleToggleComplete = (taskId: string, currentStatus: boolean) => {
-    updateTaskStatus({
-      taskId,
-      isCompleted: !currentStatus,
-    });
-  };
+  // const handleToggleComplete = (taskId: string, currentStatus: boolean) => {
+  //   updateTaskStatus({
+  //     taskId,
+  //     isCompleted: !currentStatus,
+  //   });
+  // };
 
-  const handleDeleteTask = (taskId: string) => {
-    if (confirm("Are you sure you want to delete this task?")) {
-      deleteTask(taskId);
-    }
-  };
+  // const handleDeleteTask = (taskId: string) => {
+  //   if (confirm("Are you sure you want to delete this task?")) {
+  //     deleteTask(taskId);
+  //   }
+  // };
 
   // Loading state
   if (isLoadingPlans) {
