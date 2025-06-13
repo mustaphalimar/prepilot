@@ -67,7 +67,7 @@ export const StudyPlanCard: React.FC<Props> = ({ plan }) => {
         </CardContent>
 
         <CardFooter className="flex-shrink-0 pt-2">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm">
             Last updated {formatLastUpdated(plan.updated_at)}
           </p>
         </CardFooter>

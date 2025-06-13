@@ -40,7 +40,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body
-          className={`${inter.variable} antialiased font-[family-name:var(--font-inter)] selection:bg-accent selection:text-accent-foreground`}
+          className={`${inter.variable} antialiased font-[family-name:var(--font-inter)] selection:bg-accent  selection:text-accent-foreground `}
         >
           <Providers>
             <AuthWrapper>{children}</AuthWrapper>

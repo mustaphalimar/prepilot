@@ -1,6 +1,15 @@
 "use client";
 import { ProgressProvider } from "@bprogress/next/app";
 
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+
+function ThemeProvider({
+  children,
+  ...props
+}: React.ComponentProps<typeof NextThemesProvider>) {
+  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
+}
+
 export const Providers: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -11,7 +20,14 @@ export const Providers: React.FC<{ children: React.ReactNode }> = ({
       options={{ showSpinner: false }}
       shallowRouting
     >
-      {children}
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        {children}
+      </ThemeProvider>
     </ProgressProvider>
   );
 };

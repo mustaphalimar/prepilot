@@ -13,8 +13,6 @@ import {
   IconTarget,
   IconTrophy,
   IconUser,
-  IconStar,
-  IconSparkles,
 } from "@tabler/icons-react";
 import * as React from "react";
 
@@ -24,13 +22,11 @@ import { NavDocuments } from "@/components/sidebar/nav-tracking";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 const data = {

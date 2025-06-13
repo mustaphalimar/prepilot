@@ -28,6 +28,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
 import { Bot } from "lucide-react";
+import { useSidebar } from "@/components/ui/sidebar";
 
 interface Props {
   params: {
@@ -39,6 +40,7 @@ const StudyPlanPage: React.FC<Props> = ({ params }) => {
   const plan = mockStudyPlans.find((plan) => plan.id === params.plan_id);
   const [isAssistantPanelOpen, setIsAssistantPanelOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const sidebar = useSidebar();
 
   if (!plan) {
     notFound();
@@ -68,17 +70,20 @@ const StudyPlanPage: React.FC<Props> = ({ params }) => {
       {/* Header Section */}
       <div
         className={cn("w-full", {
-          "w-[68%]": isAssistantPanelOpen,
+          "w-[68%]": isAssistantPanelOpen && !sidebar.open,
+          "w-[64%]": sidebar.open && isAssistantPanelOpen,
         })}
       >
         <div className="mb-8">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2 dark:text-gray-100">
                 {plan.title}
               </h1>
-              <p className="text-lg text-gray-600 mb-4">{plan.description}</p>
-              <div className="flex items-center gap-4 text-sm text-gray-500">
+              <p className="text-lg text-gray-600 mb-4 dark:text-gray-300">
+                {plan.description}
+              </p>
+              <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-200">
                 <div className="flex items-center gap-1">
                   <IconBookmark className="w-4 h-4" />
                   <span>{plan.subject}</span>
@@ -143,13 +148,11 @@ const StudyPlanPage: React.FC<Props> = ({ params }) => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                Progress
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">Progress</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-3">
-                <IconChartPie className="w-8 h-8 text-blue-600" />
+                <IconChartPie className="w-8 h-8 text-blue-600 dark:text-blue-300" />
                 <div>
                   <div className="text-2xl font-bold">
                     {progressPercentage}%
@@ -167,16 +170,18 @@ const StudyPlanPage: React.FC<Props> = ({ params }) => {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
+              <CardTitle className="text-sm font-medium ">
                 Days Remaining
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-3">
-                <IconClock className="w-8 h-8 text-orange-600" />
+                <IconClock className="w-8 h-8 text-orange-600 dark:text-orange-300" />
                 <div>
                   <div className="text-2xl font-bold">{daysRemaining}</div>
-                  <div className="text-sm text-gray-500">until exam</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    until exam
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -184,18 +189,18 @@ const StudyPlanPage: React.FC<Props> = ({ params }) => {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                Exam Date
-              </CardTitle>
+              <CardTitle className="text-sm font-medium ">Exam Date</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-3">
-                <IconTarget className="w-8 h-8 text-green-600" />
+                <IconTarget className="w-8 h-8 text-green-600 dark:text-green-300" />
                 <div>
                   <div className="text-lg font-bold">
                     {formatDate(plan.exam_date)}
                   </div>
-                  <div className="text-sm text-gray-500">Target date</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    Target date
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -203,13 +208,13 @@ const StudyPlanPage: React.FC<Props> = ({ params }) => {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
+              <CardTitle className="text-sm font-medium ">
                 Study Period
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-3">
-                <IconCalendar className="w-8 h-8 text-purple-600" />
+                <IconCalendar className="w-8 h-8 text-purple-600 dark:text-purple-300" />
                 <div>
                   <div className="text-sm font-bold">
                     {Math.ceil(
@@ -218,7 +223,9 @@ const StudyPlanPage: React.FC<Props> = ({ params }) => {
                     )}{" "}
                     days
                   </div>
-                  <div className="text-sm text-gray-500">total duration</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    total duration
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -405,9 +412,13 @@ const StudyPlanPage: React.FC<Props> = ({ params }) => {
         </div>
       </div>
       <div
-        className={cn("fixed bottom-8 right-8 bg-white h-[89vh]", {
-          "w-[30%] border rounded-xl ": isAssistantPanelOpen,
-        })}
+        className={cn(
+          "fixed bottom-8 right-8 bg-white dark:bg-background h-[89vh]",
+          {
+            "lg:w-[40%] xl:w-[30%] border rounded-xl overflow-hidden ":
+              isAssistantPanelOpen,
+          },
+        )}
       >
         <AssistantPanel
           isOpen={isAssistantPanelOpen}
