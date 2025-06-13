@@ -58,9 +58,9 @@ export const StudyPlanCard: React.FC<Props> = ({ plan }) => {
               {plan.progress}% Completed
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-1">
+          <div className="w-full bg-gray-200 rounded-full h-2">
             <div
-              className="bg-primary h-1 rounded-full transition-all duration-300"
+              className="bg-primary h-2 rounded-full transition-all duration-300"
               style={{ width: `${plan.progress}%` }}
             />
           </div>

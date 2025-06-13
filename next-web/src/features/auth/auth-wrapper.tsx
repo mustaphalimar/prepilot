@@ -55,9 +55,11 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <div className="flex-1 overflow-auto m-2  rounded-xl border shadow">
+        <div className="overflow-auto  m-2  rounded-xl border shadow">
           <SiteHeader />
-          <div className="bg-white">{children}</div>
+          <div className="bg-white max-h-[92vh] overflow-y-scroll dark:bg-background">
+            {children}
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>

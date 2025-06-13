@@ -13,6 +13,8 @@ import {
   IconTarget,
   IconTrophy,
   IconUser,
+  IconStar,
+  IconSparkles,
 } from "@tabler/icons-react";
 import * as React from "react";
 
@@ -28,6 +30,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 const data = {
@@ -133,7 +136,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavDocuments items={data.tracking} groupName="📊 Tracking" />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>{/* <NavUser /> */}</SidebarFooter>
+      {/* <SidebarFooter>
+
+        <NavUser />
+      </SidebarFooter> */}
     </Sidebar>
   );
 }

@@ -48,7 +48,7 @@ export function NavMain({
               <SidebarMenuButton
                 tooltip="Quick Create"
                 className={cn("", {
-                  "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground":
+                  "bg-primary text-primary-foreground  hover:bg-primary/90 hover:text-primary-foreground":
                     pathname === "/",
                   "text-black": pathname !== "/",
                 })}
