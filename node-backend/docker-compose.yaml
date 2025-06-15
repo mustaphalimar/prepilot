@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  prepilot-backend:
+    build: .
+    container_name: prepilot-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    # Uncomment below if you need volumes for logs or data persistence
+    # volumes:
+    #   - ./logs:/usr/src/app/logs
+    #   - ./data:/usr/src/app/data
+
+  # Uncomment if you need a database
+  # database:
+  #   image: postgres:15
+  #   container_name: prepilot-db
+  #   environment:
+  #     POSTGRES_DB: prepilot
+  #     POSTGRES_USER: prepilot
+  #     POSTGRES_PASSWORD: your_password_here
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   restart: unless-stopped
+
+  # Uncomment if you need Redis for caching
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: prepilot-redis
+  #   ports:
+  #     - "6379:6379"
+  #   restart: unless-stopped
+# Uncomment if using database
+# volumes:
+#   postgres_data:
