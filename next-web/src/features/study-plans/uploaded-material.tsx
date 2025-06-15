@@ -80,7 +80,7 @@ export const UploadedMaterial = () => {
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                   {isDragOver
                     ? "Drop your files here!"
-                    : "Upload Study Materials"}
+                    : "Upload Study Material"}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300">
                   Drag and drop your files here, or{" "}
