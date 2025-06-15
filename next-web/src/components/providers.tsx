@@ -16,13 +16,13 @@ export const Providers: React.FC<{ children: React.ReactNode }> = ({
   return (
     <ProgressProvider
       height="4px"
-      color="#21a181"
+      color="#ffe0c2"
       options={{ showSpinner: false }}
       shallowRouting
     >
       <ThemeProvider
         attribute="class"
-        defaultTheme="system"
+        defaultTheme="dark"
         enableSystem
         disableTransitionOnChange
       >

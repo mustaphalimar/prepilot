@@ -210,9 +210,16 @@ body {
     scrollbar-color: #ccc transparent;
 }
 
+input::selection {
+    @apply bg-accent text-accent-foreground;
+}
+
 .dark {
     & *::selection {
-        @apply bg-neutral-700;
+        @apply bg-slate-700;
+    }
+    input::selection {
+        @apply text-neutral-200;
     }
     &::selection {
         background-color: var(--accent);

@@ -1,15 +1,16 @@
 "use client";
 
+import { Input } from "@/components/ui/input";
+import { CreateStudyPlanSheet } from "@/features/study-plans/sheets/create-study-plan-sheet";
+import { ScheduleExamSheet } from "@/features/study-plans/sheets/schedule-exam-sheet";
 import { StudyPlanCard } from "@/features/study-plans/study-plan-card";
 import { mockStudyPlans } from "@/features/study-plans/types";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search, Plus, Pin } from "lucide-react";
+import { Pin, Search } from "lucide-react";
 import { useState } from "react";
-import { CreateStudyPlanSheet } from "@/features/study-plans/create-study-plan-sheet";
 
 export default function StudyPlansPage() {
   const [isCreatePlanSheetOpen, setIsCreatePlanSheetOpen] = useState(false);
+
   return (
     <main className="p-5">
       <h1 className="text-3xl font-bold">Study Plans</h1>
@@ -24,6 +25,7 @@ export default function StudyPlansPage() {
           isCreatePlanSheetOpen={isCreatePlanSheetOpen}
           setIsCreatePlanSheetOpen={setIsCreatePlanSheetOpen}
         />
+        <ScheduleExamSheet />
         {/* <Button className="whitespace-nowrap font-semibold">
           <Plus className="h-4 w-4 mr-2" />
           Create New Plan

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { Bot, Send, User, X, Copy, RotateCcw } from "lucide-react";
+import { Bot, Copy, RotateCcw, Send, X } from "lucide-react";
 import { useState } from "react";
 
 interface Props {
@@ -114,7 +114,7 @@ export const AssistantPanel: React.FC<Props> = ({ isOpen, setIsOpen }) => {
       </div>
 
       {/* Messages Area */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="pb-4 h-full flex-1">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-8 text-center">
             <div className="w-16 h-16 bg-gray-100 dark:bg-accent rounded-full flex items-center justify-center mb-4">
@@ -124,13 +124,13 @@ export const AssistantPanel: React.FC<Props> = ({ isOpen, setIsOpen }) => {
               How can I help you today?
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-300 max-w-sm">
-              Ask me anything - I'm here to assist with questions, provide
+              Ask me anything - I&apos;m here to assist with questions, provide
               explanations, help with tasks, and more.
             </p>
           </div>
         ) : (
           <div className="p-4 space-y-6">
-            {messages.map((msg, index) => (
+            {messages.map((msg) => (
               <div key={msg.id} className="group">
                 {msg.isUser ? (
                   // User message - right aligned with background
@@ -193,7 +193,7 @@ export const AssistantPanel: React.FC<Props> = ({ isOpen, setIsOpen }) => {
       </ScrollArea>
 
       {/* Input Area */}
-      <div className="border-t bg-white dark:bg-accent p-3">
+      <div className="absolute bg-card dark:bg-accent bottom-0 w-full z-50 p-3">
         <div className="relative">
           <Textarea
             value={message}

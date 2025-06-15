@@ -21,7 +21,8 @@ export const StudyPlanCard: React.FC<Props> = ({ plan }) => {
   };
 
   const handleActionClick = (e: React.MouseEvent) => {
-    alert("Action menu clicked for plan:");
+    console.log(e.button);
+    alert("Action menu clicked for plan: ");
   };
 
   return (
