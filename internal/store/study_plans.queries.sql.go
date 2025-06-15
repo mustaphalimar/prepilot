@@ -14,43 +14,30 @@ import (
 )
 
 const createStudyPlan = `-- name: CreateStudyPlan :one
-INSERT INTO study_plans (user_id, title, subject, description, exam_date, start_date, end_date)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, user_id, title, subject, description, exam_date, start_date, end_date, created_at, updated_at
+
+INSERT INTO study_plans (user_id, title, exam_id)
+VALUES ($1, $2, $3)
+RETURNING id, user_id, title, description, created_at, updated_at, exam_id
 `
 
 type CreateStudyPlanParams struct {
-	UserID      string         `json:"user_id"`
-	Title       string         `json:"title"`
-	Subject     string         `json:"subject"`
-	Description string `json:"description"`
-	ExamDate    time.Time      `json:"exam_date"`
-	StartDate   time.Time      `json:"start_date"`
-	EndDate     time.Time      `json:"end_date"`
+	UserID string    `json:"user_id"`
+	Title  string    `json:"title"`
+	ExamID uuid.UUID `json:"exam_id"`
 }
 
+// STUDY PLANS QUERIES
 func (q *Queries) CreateStudyPlan(ctx context.Context, arg CreateStudyPlanParams) (StudyPlan, error) {
-	row := q.db.QueryRowContext(ctx, createStudyPlan,
-		arg.UserID,
-		arg.Title,
-		arg.Subject,
-		arg.Description,
-		arg.ExamDate,
-		arg.StartDate,
-		arg.EndDate,
-	)
+	row := q.db.QueryRowContext(ctx, createStudyPlan, arg.UserID, arg.Title, arg.ExamID)
 	var i StudyPlan
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
 		&i.Title,
-		&i.Subject,
 		&i.Description,
-		&i.ExamDate,
-		&i.StartDate,
-		&i.EndDate,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ExamID,
 	)
 	return i, err
 }
@@ -66,36 +53,52 @@ func (q *Queries) DeleteStudyPlan(ctx context.Context, id uuid.UUID) error {
 }
 
 const getStudyPlanByID = `-- name: GetStudyPlanByID :one
-SELECT id, user_id, title, subject, description, exam_date, start_date, end_date, created_at, updated_at FROM study_plans
-WHERE id = $1
+SELECT sp.id, sp.user_id, sp.title, sp.description, sp.created_at, sp.updated_at, sp.exam_id, e.title as exam_title, e.date as exam_date, s.name as subject_name
+FROM study_plans sp
+JOIN exams e ON sp.exam_id = e.id
+JOIN subjects s ON e.subject_id = s.id
+WHERE sp.id = $1
 `
 
-func (q *Queries) GetStudyPlanByID(ctx context.Context, id uuid.UUID) (StudyPlan, error) {
+type GetStudyPlanByIDRow struct {
+	ID          uuid.UUID      `json:"id"`
+	UserID      string         `json:"user_id"`
+	Title       string         `json:"title"`
+	Description sql.NullString `json:"description"`
+	CreatedAt   sql.NullTime   `json:"created_at"`
+	UpdatedAt   sql.NullTime   `json:"updated_at"`
+	ExamID      uuid.UUID      `json:"exam_id"`
+	ExamTitle   string         `json:"exam_title"`
+	ExamDate    time.Time      `json:"exam_date"`
+	SubjectName string         `json:"subject_name"`
+}
+
+func (q *Queries) GetStudyPlanByID(ctx context.Context, id uuid.UUID) (GetStudyPlanByIDRow, error) {
 	row := q.db.QueryRowContext(ctx, getStudyPlanByID, id)
-	var i StudyPlan
+	var i GetStudyPlanByIDRow
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
 		&i.Title,
-		&i.Subject,
 		&i.Description,
-		&i.ExamDate,
-		&i.StartDate,
-		&i.EndDate,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ExamID,
+		&i.ExamTitle,
+		&i.ExamDate,
+		&i.SubjectName,
 	)
 	return i, err
 }
 
-const getStudyPlansByUserId = `-- name: GetStudyPlansByUserId :many
-SELECT id, user_id, title, subject, description, exam_date, start_date, end_date, created_at, updated_at FROM study_plans
-WHERE user_id = $1
+const getStudyPlansByExamId = `-- name: GetStudyPlansByExamId :many
+SELECT id, user_id, title, description, created_at, updated_at, exam_id FROM study_plans
+WHERE exam_id = $1
 ORDER BY created_at DESC
 `
 
-func (q *Queries) GetStudyPlansByUserId(ctx context.Context, userID string) ([]StudyPlan, error) {
-	rows, err := q.db.QueryContext(ctx, getStudyPlansByUserId, userID)
+func (q *Queries) GetStudyPlansByExamId(ctx context.Context, examID uuid.UUID) ([]StudyPlan, error) {
+	rows, err := q.db.QueryContext(ctx, getStudyPlansByExamId, examID)
 	if err != nil {
 		return nil, err
 	}
@@ -107,13 +110,156 @@ func (q *Queries) GetStudyPlansByUserId(ctx context.Context, userID string) ([]S
 			&i.ID,
 			&i.UserID,
 			&i.Title,
-			&i.Subject,
 			&i.Description,
-			&i.ExamDate,
-			&i.StartDate,
-			&i.EndDate,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.ExamID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getStudyPlansByUserId = `-- name: GetStudyPlansByUserId :many
+SELECT sp.id, sp.user_id, sp.title, sp.description, sp.created_at, sp.updated_at, sp.exam_id, e.title as exam_title, e.date as exam_date, s.name as subject_name
+FROM study_plans sp
+JOIN exams e ON sp.exam_id = e.id
+JOIN subjects s ON e.subject_id = s.id
+WHERE sp.user_id = $1
+ORDER BY sp.created_at DESC
+`
+
+type GetStudyPlansByUserIdRow struct {
+	ID          uuid.UUID      `json:"id"`
+	UserID      string         `json:"user_id"`
+	Title       string         `json:"title"`
+	Description sql.NullString `json:"description"`
+	CreatedAt   sql.NullTime   `json:"created_at"`
+	UpdatedAt   sql.NullTime   `json:"updated_at"`
+	ExamID      uuid.UUID      `json:"exam_id"`
+	ExamTitle   string         `json:"exam_title"`
+	ExamDate    time.Time      `json:"exam_date"`
+	SubjectName string         `json:"subject_name"`
+}
+
+func (q *Queries) GetStudyPlansByUserId(ctx context.Context, userID string) ([]GetStudyPlansByUserIdRow, error) {
+	rows, err := q.db.QueryContext(ctx, getStudyPlansByUserId, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetStudyPlansByUserIdRow
+	for rows.Next() {
+		var i GetStudyPlansByUserIdRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Title,
+			&i.Description,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.ExamID,
+			&i.ExamTitle,
+			&i.ExamDate,
+			&i.SubjectName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSubjectWithStudyPlans = `-- name: GetSubjectWithStudyPlans :one
+SELECT s.id, s.user_id, s.name, s.created_at, s.updated_at,
+       COUNT(sp.id) as study_plans_count,
+       COUNT(e.id) as exams_count
+FROM subjects s
+LEFT JOIN exams e ON s.id = e.subject_id
+LEFT JOIN study_plans sp ON e.id = sp.exam_id
+WHERE s.id = $1
+GROUP BY s.id, s.user_id, s.name, s.created_at, s.updated_at
+`
+
+type GetSubjectWithStudyPlansRow struct {
+	ID              uuid.UUID    `json:"id"`
+	UserID          string       `json:"user_id"`
+	Name            string       `json:"name"`
+	CreatedAt       sql.NullTime `json:"created_at"`
+	UpdatedAt       sql.NullTime `json:"updated_at"`
+	StudyPlansCount int64        `json:"study_plans_count"`
+	ExamsCount      int64        `json:"exams_count"`
+}
+
+func (q *Queries) GetSubjectWithStudyPlans(ctx context.Context, id uuid.UUID) (GetSubjectWithStudyPlansRow, error) {
+	row := q.db.QueryRowContext(ctx, getSubjectWithStudyPlans, id)
+	var i GetSubjectWithStudyPlansRow
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.StudyPlansCount,
+		&i.ExamsCount,
+	)
+	return i, err
+}
+
+const getUserStudyOverview = `-- name: GetUserStudyOverview :many
+
+SELECT
+    s.id as subject_id,
+    s.name as subject_name,
+    COUNT(DISTINCT e.id) as total_exams,
+    COUNT(DISTINCT sp.id) as total_study_plans,
+    MIN(e.date) as next_exam_date
+FROM subjects s
+LEFT JOIN exams e ON s.id = e.subject_id
+LEFT JOIN study_plans sp ON e.id = sp.exam_id
+WHERE s.user_id = $1
+GROUP BY s.id, s.name
+ORDER BY next_exam_date ASC NULLS LAST
+`
+
+type GetUserStudyOverviewRow struct {
+	SubjectID       uuid.UUID   `json:"subject_id"`
+	SubjectName     string      `json:"subject_name"`
+	TotalExams      int64       `json:"total_exams"`
+	TotalStudyPlans int64       `json:"total_study_plans"`
+	NextExamDate    interface{} `json:"next_exam_date"`
+}
+
+// COMBINED QUERIES FOR DASHBOARD/OVERVIEW
+func (q *Queries) GetUserStudyOverview(ctx context.Context, userID string) ([]GetUserStudyOverviewRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserStudyOverview, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUserStudyOverviewRow
+	for rows.Next() {
+		var i GetUserStudyOverviewRow
+		if err := rows.Scan(
+			&i.SubjectID,
+			&i.SubjectName,
+			&i.TotalExams,
+			&i.TotalStudyPlans,
+			&i.NextExamDate,
 		); err != nil {
 			return nil, err
 		}
@@ -131,48 +277,29 @@ func (q *Queries) GetStudyPlansByUserId(ctx context.Context, userID string) ([]S
 const updateStudyPlan = `-- name: UpdateStudyPlan :one
 UPDATE study_plans
 SET title = $2,
-    subject = $3,
-    description = $4,
-    exam_date = $5,
-    start_date = $6,
-    end_date = $7,
+    exam_id = $3,
     updated_at = now()
 WHERE id = $1
-RETURNING id, user_id, title, subject, description, exam_date, start_date, end_date, created_at, updated_at
+RETURNING id, user_id, title, description, created_at, updated_at, exam_id
 `
 
 type UpdateStudyPlanParams struct {
-	ID          uuid.UUID      `json:"id"`
-	Title       string         `json:"title"`
-	Subject     string         `json:"subject"`
-	Description sql.NullString `json:"description"`
-	ExamDate    time.Time      `json:"exam_date"`
-	StartDate   time.Time      `json:"start_date"`
-	EndDate     time.Time      `json:"end_date"`
+	ID     uuid.UUID `json:"id"`
+	Title  string    `json:"title"`
+	ExamID uuid.UUID `json:"exam_id"`
 }
 
 func (q *Queries) UpdateStudyPlan(ctx context.Context, arg UpdateStudyPlanParams) (StudyPlan, error) {
-	row := q.db.QueryRowContext(ctx, updateStudyPlan,
-		arg.ID,
-		arg.Title,
-		arg.Subject,
-		arg.Description,
-		arg.ExamDate,
-		arg.StartDate,
-		arg.EndDate,
-	)
+	row := q.db.QueryRowContext(ctx, updateStudyPlan, arg.ID, arg.Title, arg.ExamID)
 	var i StudyPlan
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
 		&i.Title,
-		&i.Subject,
 		&i.Description,
-		&i.ExamDate,
-		&i.StartDate,
-		&i.EndDate,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ExamID,
 	)
 	return i, err
 }
