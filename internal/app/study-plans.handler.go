@@ -13,12 +13,12 @@ func (app *Application) createStudyPlanHandler(w http.ResponseWriter, r *http.Re
 	var studyPlanPayload store.CreateStudyPlanParams
 
 	if err := app.readJSON(w, r, &studyPlanPayload); err != nil {
-		app.badRequestError(w, r, err)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
 	if err := Validate.Struct(studyPlanPayload); err != nil {
-		app.badRequestError(w, r, err)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
@@ -27,18 +27,21 @@ func (app *Application) createStudyPlanHandler(w http.ResponseWriter, r *http.Re
 
 	studyPlan, err := app.Queries.CreateStudyPlan(r.Context(), studyPlanPayload)
 	if err != nil {
-		app.internalServerError(w, r, err)
+		app.internalServerResponse(w, r, err)
 		return
 	}
 
-	app.writeJSON(w, http.StatusCreated, studyPlan)
+	if err := app.jsonResponse(w, http.StatusOK, studyPlan); err != nil {
+		app.internalServerResponse(w, r, err)
+		return
+	}
 }
 
 // GetStudyPlansHandler retrieves all study plans for the authenticated user
 func (app *Application) GetStudyPlansHandler(w http.ResponseWriter, r *http.Request, user *UserClaims) {
 	studyPlans, err := app.Queries.GetStudyPlansByUserId(r.Context(), user.ClerkID)
 	if err != nil {
-		app.internalServerError(w, r, err)
+		app.internalServerResponse(w, r, err)
 		return
 	}
 
@@ -48,7 +51,7 @@ func (app *Application) GetStudyPlansHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	if err := app.jsonResponse(w, http.StatusOK, studyPlans); err != nil {
-		app.internalServerError(w, r, err)
+		app.internalServerResponse(w, r, err)
 	}
 }
 
@@ -57,7 +60,7 @@ func (app *Application) GetStudyPlanHandler(w http.ResponseWriter, r *http.Reque
 	planIDStr := chi.URLParam(r, "id")
 	planID, err := uuid.Parse(planIDStr)
 	if err != nil {
-		app.badRequestError(w, r, err)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
@@ -67,7 +70,7 @@ func (app *Application) GetStudyPlanHandler(w http.ResponseWriter, r *http.Reque
 			app.writeJSONError(w, http.StatusNotFound, "Study plan not found")
 			return
 		}
-		app.internalServerError(w, r, err)
+		app.internalServerResponse(w, r, err)
 		return
 	}
 
@@ -77,7 +80,10 @@ func (app *Application) GetStudyPlanHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	app.writeJSON(w, http.StatusOK, studyPlan)
+	if err := app.jsonResponse(w, http.StatusOK, studyPlan); err != nil {
+		app.internalServerResponse(w, r, err)
+		return
+	}
 }
 
 // GetStudyPlanTasksHandler retrieves all tasks for a specific study plan
@@ -85,7 +91,7 @@ func (app *Application) GetStudyPlanTasksHandler(w http.ResponseWriter, r *http.
 	planIDStr := chi.URLParam(r, "id")
 	planID, err := uuid.Parse(planIDStr)
 	if err != nil {
-		app.badRequestError(w, r, err)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
@@ -96,7 +102,7 @@ func (app *Application) GetStudyPlanTasksHandler(w http.ResponseWriter, r *http.
 			app.writeJSONError(w, http.StatusNotFound, "Study plan not found")
 			return
 		}
-		app.internalServerError(w, r, err)
+		app.internalServerResponse(w, r, err)
 		return
 	}
 
@@ -108,7 +114,7 @@ func (app *Application) GetStudyPlanTasksHandler(w http.ResponseWriter, r *http.
 	// Get tasks for the plan
 	tasks, err := app.Queries.GetTasksByPlan(r.Context(), uuid.NullUUID{UUID: planID, Valid: true})
 	if err != nil {
-		app.internalServerError(w, r, err)
+		app.internalServerResponse(w, r, err)
 		return
 	}
 
@@ -123,5 +129,8 @@ func (app *Application) GetStudyPlanTasksHandler(w http.ResponseWriter, r *http.
 		response = []StudyTaskResponse{}
 	}
 
-	app.writeJSON(w, http.StatusOK, response)
+	if err := app.jsonResponse(w, http.StatusOK, response); err != nil {
+		app.internalServerResponse(w, r, err)
+		return
+	}
 }

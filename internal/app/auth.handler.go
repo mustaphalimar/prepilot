@@ -14,12 +14,12 @@ type RegisterRequest struct {
 func (app *Application) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	var req RegisterRequest
 	if err := app.readJSON(w, r, &req); err != nil {
-		app.badRequestError(w, r, err)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
 	if err := Validate.Struct(req); err != nil {
-		app.badRequestError(w, r, err)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 

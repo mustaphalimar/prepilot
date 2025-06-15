@@ -7,6 +7,7 @@ import (
 	"github.com/mustaphalimar/prepilot/internal/app"
 	"github.com/mustaphalimar/prepilot/internal/db"
 	"github.com/mustaphalimar/prepilot/internal/env"
+	"go.uber.org/zap"
 )
 
 const version = "0.0.1"
@@ -49,6 +50,9 @@ func main() {
 	}
 	log.Println("Database migrations completed successfully.")
 
+	logger := zap.Must(zap.NewProduction()).Sugar()
+	defer logger.Sync()
+
 	// Application configuration
 	appConfig := app.Config{
 		Addr:               env.GetString("ADDR", ":8080"),
@@ -57,7 +61,7 @@ func main() {
 	}
 
 	// Create application instance
-	application := app.NewApplication(appConfig, sqlDB)
+	application := app.NewApplication(appConfig, sqlDB, logger)
 
 	// Start the HTTP server (defined in api.go)
 	if err := serve(application); err != nil {

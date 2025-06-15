@@ -1,7 +1,6 @@
 package app
 
 import (
-	"log"
 	"net/http"
 )
 
@@ -10,26 +9,40 @@ const (
 	ColorReset = "\033[0m"
 )
 
-func (app *Application) internalServerError(w http.ResponseWriter, r *http.Request, err error) {
-	log.Printf("%sINTERNAL_SERVER_ERROR_OCCURED: %s path: %s error: %s%s",
-		ColorRed, r.Method, r.URL.Path, err.Error(), ColorReset)
+func (app *Application) internalServerResponse(w http.ResponseWriter, r *http.Request, err error) {
+	var message = "INTERNAL_SERVER_ERROR"
+	app.Logger.Errorw(message, "method", r.Method, "path", r.URL.Path, err)
 	app.writeJSONError(w, http.StatusInternalServerError, "The server encountered a problem while procession your request.")
 }
 
-func (app *Application) conflictError(w http.ResponseWriter, r *http.Request, err error) {
-	log.Printf("%sCONFLICT_ERROR_OCCURED: %s path: %s error: %s%s",
-		ColorRed, r.Method, r.URL.Path, err.Error(), ColorReset)
+func (app *Application) conflictResponse(w http.ResponseWriter, r *http.Request, err error) {
+	var message = "CONFLICT_ERROR"
+	app.Logger.Warnf(message, "method", r.Method, "path", r.URL.Path, err)
 	app.writeJSONError(w, http.StatusConflict, err.Error())
 }
 
-func (app *Application) badRequestError(w http.ResponseWriter, r *http.Request, err error) {
-	log.Printf("%sBAD_REQUEST_ERROR: %s path: %s error: %s%s",
-		ColorRed, r.Method, r.URL.Path, err.Error(), ColorReset)
+func (app *Application) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
+	var message = "BAD_REQUEST_ERROR"
+	app.Logger.Warnf(message, "method", r.Method, "path", r.URL.Path, err)
 	app.writeJSONError(w, http.StatusBadRequest, err.Error())
 }
 
-func (app *Application) notFoundError(w http.ResponseWriter, r *http.Request, err error) {
-	log.Printf("%sNOT_FOUND_ERROR: %s path: %s error: %s%s",
-		ColorRed, r.Method, r.URL.Path, err.Error(), ColorReset)
+func (app *Application) notFoundResponse(w http.ResponseWriter, r *http.Request, err error) {
+	var message = "NOT_FOUND_ERROR"
+	app.Logger.Warnf(message, "method", r.Method, "path", r.URL.Path, err)
 	app.writeJSONError(w, http.StatusNotFound, "Resource not found.")
+}
+
+func (app *Application) unauthorizedResponse(w http.ResponseWriter, r *http.Request, err error) {
+	var message = "UNAUTHORIZED_ERROR"
+	app.Logger.Errorw(message, "method", r.Method, "path", r.URL.Path, err)
+
+	app.writeJSONError(w, http.StatusUnauthorized, err.Error())
+}
+func (app *Application) unauthorizedBasicAuthResponse(w http.ResponseWriter, r *http.Request, err error) {
+	var message = "UNAUTHORIZED_BASIC_AUTH_ERROR"
+	app.Logger.Errorw(message, "method", r.Method, "path", r.URL.Path, err)
+
+	w.Header().Set("WWW-Authenticate", `Basic realm="restriced", charset="UTF-8"`)
+	app.writeJSONError(w, http.StatusUnauthorized, err.Error())
 }

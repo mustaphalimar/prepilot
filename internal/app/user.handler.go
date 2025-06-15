@@ -11,12 +11,12 @@ func (app *Application) InitializeUserHandler(w http.ResponseWriter, r *http.Req
 	// Now fetch the complete user information from the database
 	dbUser, err := app.Queries.GetUserByClerkID(r.Context(), user.ClerkID)
 	if err != nil {
-		app.internalServerError(w, r, err)
+		app.internalServerResponse(w, r, err)
 		return
 	}
 
 	// Create response with user information
-	response := map[string]interface{}{
+	response := map[string]any{
 		"id":             dbUser.ID,
 		"clerk_id":       dbUser.ClerkID,
 		"email":          dbUser.Email,
@@ -39,7 +39,7 @@ func (app *Application) GetUserProfileHandler(w http.ResponseWriter, r *http.Req
 	// Fetch the complete user information from the database
 	dbUser, err := app.Queries.GetUserByClerkID(r.Context(), user.ClerkID)
 	if err != nil {
-		app.internalServerError(w, r, err)
+		app.internalServerResponse(w, r, err)
 		return
 	}
 

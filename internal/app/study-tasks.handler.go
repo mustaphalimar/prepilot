@@ -79,12 +79,12 @@ func convertStudyTaskToResponse(task store.StudyTask) StudyTaskResponse {
 func (app *Application) CreateStudyTaskHandler(w http.ResponseWriter, r *http.Request, user *UserClaims) {
 	var req CreateStudyTaskRequest
 	if err := app.readJSON(w, r, &req); err != nil {
-		app.badRequestError(w, r, err)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
 	if err := Validate.Struct(req); err != nil {
-		app.badRequestError(w, r, err)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
@@ -113,7 +113,7 @@ func (app *Application) CreateStudyTaskHandler(w http.ResponseWriter, r *http.Re
 	// Create the task
 	task, err := app.Queries.CreateTask(r.Context(), params)
 	if err != nil {
-		app.internalServerError(w, r, err)
+		app.internalServerResponse(w, r, err)
 		return
 	}
 
@@ -136,13 +136,13 @@ func (app *Application) GetStudyTasksHandler(w http.ResponseWriter, r *http.Requ
 		// Filter by plan and priority
 		planID, err := uuid.Parse(planIDStr)
 		if err != nil {
-			app.badRequestError(w, r, err)
+			app.badRequestResponse(w, r, err)
 			return
 		}
 
 		priority, err := strconv.ParseInt(priorityStr, 10, 32)
 		if err != nil {
-			app.badRequestError(w, r, err)
+			app.badRequestResponse(w, r, err)
 			return
 		}
 
@@ -155,13 +155,13 @@ func (app *Application) GetStudyTasksHandler(w http.ResponseWriter, r *http.Requ
 		// Filter by plan and status
 		planID, err := uuid.Parse(planIDStr)
 		if err != nil {
-			app.badRequestError(w, r, err)
+			app.badRequestResponse(w, r, err)
 			return
 		}
 
 		isCompleted, err := strconv.ParseBool(statusStr)
 		if err != nil {
-			app.badRequestError(w, r, err)
+			app.badRequestResponse(w, r, err)
 			return
 		}
 
@@ -174,7 +174,7 @@ func (app *Application) GetStudyTasksHandler(w http.ResponseWriter, r *http.Requ
 		// Filter by plan only
 		planID, err := uuid.Parse(planIDStr)
 		if err != nil {
-			app.badRequestError(w, r, err)
+			app.badRequestResponse(w, r, err)
 			return
 		}
 
@@ -185,7 +185,7 @@ func (app *Application) GetStudyTasksHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	if err != nil {
-		app.internalServerError(w, r, err)
+		app.internalServerResponse(w, r, err)
 		return
 	}
 
@@ -201,7 +201,7 @@ func (app *Application) GetStudyTasksHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	if err := app.jsonResponse(w, http.StatusOK, response); err != nil {
-		app.internalServerError(w, r, err)
+		app.internalServerResponse(w, r, err)
 	}
 }
 
@@ -210,7 +210,7 @@ func (app *Application) GetStudyTaskHandler(w http.ResponseWriter, r *http.Reque
 	taskIDStr := chi.URLParam(r, "id")
 	taskID, err := uuid.Parse(taskIDStr)
 	if err != nil {
-		app.badRequestError(w, r, err)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
@@ -220,7 +220,7 @@ func (app *Application) GetStudyTaskHandler(w http.ResponseWriter, r *http.Reque
 			app.writeJSONError(w, http.StatusNotFound, "Task not found")
 			return
 		}
-		app.internalServerError(w, r, err)
+		app.internalServerResponse(w, r, err)
 		return
 	}
 
@@ -233,18 +233,18 @@ func (app *Application) UpdateStudyTaskHandler(w http.ResponseWriter, r *http.Re
 	taskIDStr := chi.URLParam(r, "id")
 	taskID, err := uuid.Parse(taskIDStr)
 	if err != nil {
-		app.badRequestError(w, r, err)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
 	var req UpdateStudyTaskRequest
 	if err := app.readJSON(w, r, &req); err != nil {
-		app.badRequestError(w, r, err)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
 	if err := Validate.Struct(req); err != nil {
-		app.badRequestError(w, r, err)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
@@ -255,7 +255,7 @@ func (app *Application) UpdateStudyTaskHandler(w http.ResponseWriter, r *http.Re
 			app.writeJSONError(w, http.StatusNotFound, "Task not found")
 			return
 		}
-		app.internalServerError(w, r, err)
+		app.internalServerResponse(w, r, err)
 		return
 	}
 
@@ -278,7 +278,7 @@ func (app *Application) UpdateStudyTaskHandler(w http.ResponseWriter, r *http.Re
 	// Update the task
 	task, err := app.Queries.UpdateTask(r.Context(), params)
 	if err != nil {
-		app.internalServerError(w, r, err)
+		app.internalServerResponse(w, r, err)
 		return
 	}
 
@@ -291,7 +291,7 @@ func (app *Application) DeleteStudyTaskHandler(w http.ResponseWriter, r *http.Re
 	taskIDStr := chi.URLParam(r, "id")
 	taskID, err := uuid.Parse(taskIDStr)
 	if err != nil {
-		app.badRequestError(w, r, err)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
@@ -302,14 +302,14 @@ func (app *Application) DeleteStudyTaskHandler(w http.ResponseWriter, r *http.Re
 			app.writeJSONError(w, http.StatusNotFound, "Task not found")
 			return
 		}
-		app.internalServerError(w, r, err)
+		app.internalServerResponse(w, r, err)
 		return
 	}
 
 	// Delete the task
 	err = app.Queries.DeleteTask(r.Context(), taskID)
 	if err != nil {
-		app.internalServerError(w, r, err)
+		app.internalServerResponse(w, r, err)
 		return
 	}
 
@@ -323,7 +323,7 @@ func (app *Application) UpdateStudyTaskStatusHandler(w http.ResponseWriter, r *h
 	taskIDStr := chi.URLParam(r, "id")
 	taskID, err := uuid.Parse(taskIDStr)
 	if err != nil {
-		app.badRequestError(w, r, err)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
@@ -332,7 +332,7 @@ func (app *Application) UpdateStudyTaskStatusHandler(w http.ResponseWriter, r *h
 	}
 
 	if err := app.readJSON(w, r, &req); err != nil {
-		app.badRequestError(w, r, err)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
@@ -343,7 +343,7 @@ func (app *Application) UpdateStudyTaskStatusHandler(w http.ResponseWriter, r *h
 			app.writeJSONError(w, http.StatusNotFound, "Task not found")
 			return
 		}
-		app.internalServerError(w, r, err)
+		app.internalServerResponse(w, r, err)
 		return
 	}
 
@@ -355,7 +355,7 @@ func (app *Application) UpdateStudyTaskStatusHandler(w http.ResponseWriter, r *h
 
 	err = app.Queries.UpdateTaskStatus(r.Context(), params)
 	if err != nil {
-		app.internalServerError(w, r, err)
+		app.internalServerResponse(w, r, err)
 		return
 	}
 

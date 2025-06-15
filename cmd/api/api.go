@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/mustaphalimar/prepilot/internal/app"
+	"github.com/mustaphalimar/prepilot/internal/env"
 )
 
 // serve sets up the router and starts the HTTP server.
@@ -17,7 +18,7 @@ func serve(app *app.Application) error {
 
 	// middlewares
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedOrigins:   []string{env.GetString("CLIENT_ORIGIN", "http://localhost:3000")},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
@@ -44,5 +45,6 @@ func serve(app *app.Application) error {
 	}
 
 	log.Printf("Server started on %s", app.Config.Addr)
+	app.Logger.Infow("Server has started", "addr", app.Config.Addr, "env", app.Config.Env)
 	return srv.ListenAndServe()
 }

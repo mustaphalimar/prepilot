@@ -4,12 +4,13 @@ import (
 	"database/sql"
 
 	dbsqlc "github.com/mustaphalimar/prepilot/internal/store"
+	"go.uber.org/zap"
 )
 
 // Config holds application configuration
 type Config struct {
-	Addr              string
-	Env               string
+	Addr               string
+	Env                string
 	ClerkWebhookSecret string
 }
 
@@ -19,14 +20,16 @@ type Application struct {
 	DB      *sql.DB
 	Queries *dbsqlc.Queries
 	Version string
+	Logger  *zap.SugaredLogger
 }
 
 // NewApplication creates a new Application instance
-func NewApplication(config Config, db *sql.DB) *Application {
+func NewApplication(config Config, db *sql.DB, logger *zap.SugaredLogger) *Application {
 	return &Application{
 		Config:  config,
 		DB:      db,
 		Queries: dbsqlc.New(db),
 		Version: "0.0.1",
+		Logger:  logger,
 	}
 }
